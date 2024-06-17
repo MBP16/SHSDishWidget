@@ -21,7 +21,11 @@ fun GetMealId(year: Number, month: Number, day: Number, mealType: Int): String {
     if (meal == null) {
         return "No Data"
     }
-    return meal.select("a")[mealType].attr("onclick").split("'")[1]
+    val meals = meal.select("a")
+    if (meals.length <= mealType) {
+        return "No Data"
+    }
+    return meals[mealType].attr("onclick").split("'")[1]
 }
 
 fun GetMealData(id: Number, dataType: String): String? {
