@@ -6,9 +6,20 @@ import kotlin.collections.ArrayList
 
 fun GetMealData(dates: ArrayList<ArrayList<Number>>): ArrayList<ArrayList<ArrayList<String>>> {
     val ids = ArrayList<ArrayList<String>>()
+    var tempYear: Number = dates[0][0]
+    var tempMonth: Number = dates[0][1]
+    val tempDates = ArrayList<Number>()
+    fun getIds() {
+        val id = GetMealId(tempYear, tempMonth, tempDates)
+        ids.addAll(id)
+        tempDates.clear()
+    }
     for (date in dates) {
-        val id = GetMealId(date[0], date[1], date[2])
-        ids.add(id)
+        if (tempMonth != date[1]) getIds()
+        tempYear = date[0]
+        tempMonth = date[1]
+        tempDates.add(date[2])
+        if (date == dates.last()) getIds()
     }
     val weekMeals = ArrayList<ArrayList<ArrayList<String>>>()
     for (id in ids) {
@@ -25,7 +36,8 @@ fun GetMealData(dates: ArrayList<ArrayList<Number>>): ArrayList<ArrayList<ArrayL
     return weekMeals
 }
 
-fun GetMealId(year: Number, month: Number, day: Number): ArrayList<String> {
+// [["43", "43"], ["43", "43"]]
+fun GetMealId(year: Number, month: Number, days: ArrayList<Number>): ArrayList<ArrayList<String>> {
     val url = "https://seoul.sen.hs.kr/77703/subMenu.do"
     val response = Jsoup.connect(url)
         .data("srhMlsvYear", year.toString())
@@ -33,24 +45,29 @@ fun GetMealId(year: Number, month: Number, day: Number): ArrayList<String> {
         .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
         .post()
     val mealList = response.select("table > tbody").select("td")
-    var meal: Element? = null
-    for (i in mealList) {
-        if (day.toString() in i.text()) {
-            meal = i
-            break
+    val mealIds = ArrayList<ArrayList<String>>()
+    for (day in days) {
+        var dayMeal: Element? = null
+        for (i in mealList) {
+            if (day.toString() in i.text()) {
+                dayMeal = i
+                break
+            }
+        }
+        if (dayMeal == null) {
+            mealIds.add(arrayListOf("No Data", "No Data"))
+            continue
+        }
+        val meals = dayMeal.select("a")
+        if (meals.size == 0) {
+            mealIds.add(arrayListOf("No Data", "No Data"))
+        } else if (meals.size == 1) {
+            mealIds.add(arrayListOf(meals[0].attr("onclick").split("'")[1], "No Data"))
+        } else {
+            mealIds.add(arrayListOf(meals[0].attr("onclick").split("'")[1], meals[1].attr("onclick").split("'")[1]))
         }
     }
-    if (meal == null) {
-        return arrayListOf("No Data", "No Data")
-    }
-    val meals = meal.select("a")
-    if (meals.size == 0) {
-        return arrayListOf("No Data", "No Data")
-    } else if (meals.size == 1) {
-        return arrayListOf(meals[0].attr("onclick").split("'")[1], "No Data")
-    } else {
-        return arrayListOf(meals[0].attr("onclick").split("'")[1], meals[1].attr("onclick").split("'")[1])
-    }
+    return mealIds
 }
 
 fun GetData(id: Number, dataType: Array<String>): ArrayList<String> {

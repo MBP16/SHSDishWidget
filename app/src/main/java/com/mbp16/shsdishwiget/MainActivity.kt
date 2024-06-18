@@ -68,7 +68,7 @@ fun MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<String>>) {
     ) {
         Column {
             Text(text = "${day[0]}년 ${day[1]}월 ${day[2]}일", style = MaterialTheme.typography.titleSmall)
-            Row {
+            Column {
                 for (i in dayMeal) {
                     Column {
                         Text(text = i[0], style = MaterialTheme.typography.bodyLarge)
