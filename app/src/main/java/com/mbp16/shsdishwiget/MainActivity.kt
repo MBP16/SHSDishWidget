@@ -3,17 +3,14 @@ package com.mbp16.shsdishwiget
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.mbp16.shsdishwiget.ui.theme.SHSDishWigetTheme
-import com.mbp16.shsdishwiget.GetMealData
-import com.mbp16.shsdishwiget.GetMealId
-import java.util.*
+import java.util.Calendar
+import kotlin.collections.ArrayList
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +19,7 @@ class MainActivity : ComponentActivity() {
             SHSDishWigetTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    GetMeal()
+                    MealView()
                 }
             }
         }
@@ -30,45 +27,56 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun GetMeal() {
-    var mealData by remember { mutableStateOf<String>("No Data") }
-    val date by remember { mutableStateOf(Calendar.getInstance()) }
-    var mealType by remember { mutableIntStateOf(0) }
-    fun GetData() {
-        Thread(Runnable {
-            val id = GetMealId(date.get(Calendar.YEAR), date.get(Calendar.MONTH) + 1, date.get(Calendar.DAY_OF_MONTH), mealType)
-            if (id == "No Data") {
-                mealData = "No Data"
-            }
-            mealData = GetMealData(id.toInt(), "식단") ?: "No Data"
-        }).start()
+fun MealView() {
+    val cal = Calendar.getInstance()
+    val mealData = remember { mutableStateListOf<ArrayList<ArrayList<String>>>() }
+    val week = ArrayList<ArrayList<Number>>()
+    for (i in 2..6) {
+        val todayWeekDay = cal.get(Calendar.DAY_OF_WEEK)
+        val day = cal.get(Calendar.DAY_OF_MONTH) - todayWeekDay + i
+        val month = cal.get(Calendar.MONTH) + 1
+        val year = cal.get(Calendar.YEAR)
+        week.add(arrayListOf(year, month, day))
+        mealData.add(arrayListOf(arrayListOf("Loading", "Loading", "Loading")))
     }
-    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally, verticalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly) {
-        Text(text = "${date.get(Calendar.YEAR)}년 ${date.get(Calendar.MONTH) + 1}월 ${date.get(Calendar.DAY_OF_MONTH)}일")
-        Text(text=mealData.replace(",", "\n"))
-        Button(onClick = {
-            date.add(Calendar.DAY_OF_MONTH, 1)
-            GetData()
-        }) {
-            Text(text = "+1")
+    fun updateData() {
+        Thread {
+            Runnable {
+                val data = GetMealData(week)
+                mealData.clear()
+                mealData.addAll(data)
+            }.run()
+        }.start()
+    }
+    LaunchedEffect(key1 = mealData) {
+        updateData()
+    }
+    Row(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        for (i in 0..4) {
+            MealCard(week[i], mealData[i])
         }
-        Button(colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-            , onClick = {
-            date.add(Calendar.DAY_OF_MONTH, -1)
-            GetData()
-        }) {
-            Text(text = "-1")
-        }
-        Button(colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
-            , onClick = {
-                if (mealType == 0) {
-                    mealType = 1
-                } else {
-                    mealType = 0
+    }
+}
+
+@Composable
+fun MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<String>>) {
+    Card(
+        modifier = Modifier.padding(8.dp),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column {
+            Text(text = "${day[0]}년 ${day[1]}월 ${day[2]}일", style = MaterialTheme.typography.titleSmall)
+            Row {
+                for (i in dayMeal) {
+                    Column {
+                        Text(text = i[0], style = MaterialTheme.typography.bodyLarge)
+                        Text(text = i[1].replace(",", "\n"), style = MaterialTheme.typography.bodySmall)
+                        Text(text = i[2], style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
-                GetData()
-            }) {
-            Text(text = "Type")
+            }
         }
     }
 }
