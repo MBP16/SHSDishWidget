@@ -63,7 +63,7 @@ fun MealView() {
 @Composable
 fun MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<String>>) {
     Card(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier.fillMaxSize().weight(1f).padding(8.dp),
         shape = MaterialTheme.shapes.medium
     ) {
         Column {
