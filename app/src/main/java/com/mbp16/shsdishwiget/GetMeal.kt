@@ -26,7 +26,7 @@ fun GetMealData(dates: ArrayList<ArrayList<Number>>): ArrayList<ArrayList<ArrayL
         val todayMeal = ArrayList<ArrayList<String>>()
         for (mealId in id) {
             if (mealId == "No Data") {
-                todayMeal.add(arrayListOf("No Data", "No Data", "No Data"))
+                todayMeal.add(arrayListOf("데이터 없음", "데이터 없음", "데이터 없음"))
             } else {
                 todayMeal.add(GetData(mealId.toInt(), arrayOf("제목", "식단", "칼로리")))
             }
