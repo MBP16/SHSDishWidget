@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -110,7 +111,7 @@ fun MealView() {
         {
             Button(
                 modifier = Modifier.padding(8.dp).requiredHeight(50.dp).requiredWidth(170.dp).offset(x = (-8).dp, y = (-8).dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color("0xCC2DF07B")),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xCC2DF07B)),
                 onClick = {
                     viewingDateDelta.intValue = 0
                     setWeek()
@@ -130,7 +131,7 @@ fun RowScope.MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<Strin
     ) {
         Text(
             text = "${day[0]}년 ${day[1]}월 ${day[2]}일", style = MaterialTheme.typography.displaySmall,
-            color = (isToday).let { if (it) Color("0xCC2DF07B") else MaterialTheme.colorScheme.onSurface },
+            color = (isToday).let { if (it) Color(0xCC2DF07B) else MaterialTheme.colorScheme.onSurface },
             modifier = Modifier.padding(8.dp).fillMaxWidth(), textAlign = TextAlign.Center
         )
         Column (modifier = Modifier.fillMaxWidth()) {
