@@ -140,7 +140,7 @@ fun RowScope.MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<Strin
                 if (i[0] == "Loading") {
                     Card(modifier = Modifier.padding(8.dp).shimmer().fillMaxWidth().fillMaxHeight().weight(1f), shape = MaterialTheme.shapes.medium) {
                         Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(MaterialTheme.colorScheme.error))
-                        for (i in 0..6) {
+                        for (j in 0..6) {
                             Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(MaterialTheme.colorScheme.onSurface))
                         }
                         Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(MaterialTheme.colorScheme.primary))
