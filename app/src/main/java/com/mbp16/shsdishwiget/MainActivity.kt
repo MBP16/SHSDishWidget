@@ -3,6 +3,7 @@ package com.mbp16.shsdishwiget
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mbp16.shsdishwiget.ui.theme.SHSDishWigetTheme
+import com.valentinilk.shimmer.shimmer
 import java.util.Calendar
 import kotlin.collections.ArrayList
 
@@ -48,8 +50,8 @@ fun MealView() {
             week.add(arrayListOf(year, month, day))
             mealData.add(
                 arrayListOf(
-                    arrayListOf("로딩중", "로딩중", "로딩중"),
-                    arrayListOf("로딩중", "로딩중", "로딩중")
+                    arrayListOf("Loading", "Loading", "Loading"),
+                    arrayListOf("Loading", "Loading", "Loading"),
                 )
             )
         }
@@ -135,13 +137,23 @@ fun RowScope.MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<Strin
         )
         Column (modifier = Modifier.fillMaxWidth()) {
             for (i in dayMeal) {
-                Card(modifier = Modifier.padding(8.dp).fillMaxWidth().fillMaxHeight().weight(1f), shape = MaterialTheme.shapes.medium) {
-                    Text(text = i[0], style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(8.dp), color = MaterialTheme.colorScheme.error)
-                    Text(text = i[1].replace(",", "\n"), style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(8.dp))
-                    Text(text = i[2], style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(8.dp), color= MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                if (i[0] == "Loading") {
+                    Card(modifier = Modifier.padding(8.dp).shimmer().fillMaxWidth().fillMaxHeight().weight(1f), shape = MaterialTheme.shapes.medium) {
+                        Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(MaterialTheme.colorScheme.error))
+                        for (i in 0..6) {
+                            Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(MaterialTheme.colorScheme.onSurface))
+                        }
+                        Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(MaterialTheme.colorScheme.primary))
+                    }
+                } else {
+                    Card(modifier = Modifier.padding(8.dp).fillMaxWidth().fillMaxHeight().weight(1f), shape = MaterialTheme.shapes.medium) {
+                        Text(text = i[0], style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(8.dp), color = MaterialTheme.colorScheme.error)
+                        Text(text = i[1].replace(",", "\n"), style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(8.dp))
+                        Text(text = i[2], style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(8.dp), color= MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
