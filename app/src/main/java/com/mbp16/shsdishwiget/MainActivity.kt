@@ -37,13 +37,12 @@ fun MealView() {
     val mealData = remember { mutableStateListOf<ArrayList<ArrayList<String>>>()}
     val week = remember { mutableStateListOf<ArrayList<Number>>() }
     fun setWeek() {
-        val cal = Calendar.getInstance()
-        cal.add(Calendar.DATE, viewingDateDelta.intValue)
         week.clear()
         mealData.clear()
         for (i in 2..6) {
-            val todayWeekDay = cal.get(Calendar.DAY_OF_WEEK)
-            val day = cal.get(Calendar.DAY_OF_MONTH) - todayWeekDay + i
+            val cal = Calendar.getInstance()
+            cal.add(Calendar.DATE, viewingDateDelta.intValue + i - todayWeekDay)
+            val day = cal.get(Calendar.DAY_OF_MONTH)
             val month = cal.get(Calendar.MONTH) + 1
             val year = cal.get(Calendar.YEAR)
             week.add(arrayListOf(year, month, day))
