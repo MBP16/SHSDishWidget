@@ -5,6 +5,8 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
@@ -25,3 +27,11 @@ jobs:
         with:
           name: SHSDishWidget_debug
           path: app/build/outputs/apk/debug
+      - name: Upload to Release
+        if: github.event_name == 'release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: app/build/outputs/apk/debug/app-debug.apk
+          tag: ${{ github.ref }}
+          asset_name: SHSDishWidget_$tag.zip
