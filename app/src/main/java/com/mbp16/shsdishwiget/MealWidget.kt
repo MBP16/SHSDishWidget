@@ -12,6 +12,8 @@ import androidx.glance.layout.*
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.Button
+import androidx.glance.action.actionStartActivity
+import androidx.glance.action.clickable
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import java.util.Calendar
@@ -54,7 +56,10 @@ class MealWidget : GlanceAppWidget() {
             updateInfo()
         }
 
-        Column (modifier = GlanceModifier.padding(8.dp).fillMaxSize().background(GlanceTheme.colors.surface))
+        Column (
+            modifier = GlanceModifier.padding(8.dp).fillMaxSize().background(GlanceTheme.colors.surface)
+                .clickable(actionStartActivity<MainActivity>())
+        )
         {
             Text(
                 text = "${today[0]}년 ${today[1]}월 ${today[2]}일",
