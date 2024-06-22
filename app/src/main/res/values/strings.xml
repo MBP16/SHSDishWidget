@@ -3,4 +3,5 @@
     <string name="appwidget_text">단일 급식</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">당일 시간에 맞는 급식 정보를 보여줍니다</string>
+    <string name="app_meal_multiple_widget_description">일주일의 급식 정보를 보여줍니다</string>
 </resources>
