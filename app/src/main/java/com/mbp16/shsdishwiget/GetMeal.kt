@@ -36,6 +36,15 @@ fun GetMealData(dates: ArrayList<ArrayList<Number>>): ArrayList<ArrayList<ArrayL
     return weekMeals
 }
 
+fun GetMealSignleWidget(year: Number, month: Number, days: Number, mealType:Int): ArrayList<String> {
+    val mealId = GetMealId(year, month, arrayListOf(days))[0][mealType]
+    if (mealId == "No Data") {
+        return arrayListOf("데이터 없음", "데이터 없음", "데이터 없음")
+    } else {
+        return GetData(mealId.toInt(), arrayOf("제목", "식단", "칼로리"))
+    }
+}
+
 // [["43", "43"], ["43", "43"]]
 fun GetMealId(year: Number, month: Number, days: ArrayList<Number>): ArrayList<ArrayList<String>> {
     val url = "https://seoul.sen.hs.kr/77703/subMenu.do"
