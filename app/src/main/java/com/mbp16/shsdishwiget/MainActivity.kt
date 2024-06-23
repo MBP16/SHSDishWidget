@@ -1,8 +1,11 @@
 package com.mbp16.shsdishwiget
 
+import android.app.Activity
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Bundle
+import android.os.Looper
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -43,6 +46,15 @@ class MainActivity : ComponentActivity() {
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.error
                             )
+                            Button(
+                                modifier = Modifier.padding(8.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
+                                onClick = {
+                                    recreate()
+                                }
+                            ) {
+                                Text("다시 시도")
+                            }
                         }
                     }
                 }
@@ -53,7 +65,7 @@ class MainActivity : ComponentActivity() {
                 SHSDishWigetTheme {
                     // A surface container using the 'background' color from the theme
                     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                        MealView()
+                        MealView(this)
                     }
                 }
             }
@@ -63,20 +75,43 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MealView() {
+fun MealView(activity: Activity) {
     val pickingDate = remember { mutableStateOf(false) }
     val viewingDateDelta = remember { mutableIntStateOf(0) }
     val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
     val mealData = remember { mutableStateListOf(arrayListOf(arrayListOf("Loading", "Loading", "Loading"))) }
     val week = remember { mutableStateListOf<ArrayList<Number>>(arrayListOf(0, 0, 0)) }
     fun updateData() {
-        Thread {
+        fun exceptionHandler() {
+            object : Thread() {
+                override fun run() {
+                    Looper.prepare()
+                    Toast.makeText(activity, "데이터를 불러오는 중 오류가 발생했습니다.", Toast.LENGTH_LONG).show()
+                    mealData.clear()
+                    for (i in 0..4) {
+                        mealData.add(
+                            arrayListOf(
+                                arrayListOf("데이터 불러오기 실패", "데이터 불러오기 실패", "데이터 불러오기 실패"),
+                                arrayListOf("데이터 불러오기 실패", "데이터 불러오기 실패", "데이터 불러오기 실패"),
+                            )
+                        )
+                    }
+                    Looper.loop()
+                }
+            }.start()
+            try {
+                Thread.sleep(4000)
+            } catch (_: InterruptedException) { }
+        }
+        val thread = Thread {
             Runnable {
                 val data = GetMealData(ArrayList(week))
                 mealData.clear()
                 mealData.addAll(data)
             }.run()
-        }.start()
+        }
+        thread.setUncaughtExceptionHandler { _, _ -> exceptionHandler() }
+        thread.start()
     }
     fun setWeek() {
         val newWeek = ArrayList<ArrayList<Number>>()
