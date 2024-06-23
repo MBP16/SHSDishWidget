@@ -21,9 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mbp16.shsdishwiget.ui.theme.SHSDishWigetTheme
 import com.valentinilk.shimmer.shimmer
-import java.time.temporal.ChronoUnit
-import java.util.Calendar
-import kotlin.collections.ArrayList
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,26 +67,8 @@ fun MealView() {
     val pickingDate = remember { mutableStateOf(false) }
     val viewingDateDelta = remember { mutableIntStateOf(0) }
     val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
-    val mealData = remember { mutableStateListOf<ArrayList<ArrayList<String>>>()}
-    val week = remember { mutableStateListOf<ArrayList<Number>>() }
-    fun setWeek() {
-        week.clear()
-        mealData.clear()
-        for (i in 2..6) {
-            val cal = Calendar.getInstance()
-            cal.add(Calendar.DATE, viewingDateDelta.intValue + i - todayWeekDay)
-            val day = cal.get(Calendar.DAY_OF_MONTH)
-            val month = cal.get(Calendar.MONTH) + 1
-            val year = cal.get(Calendar.YEAR)
-            week.add(arrayListOf(year, month, day))
-            mealData.add(
-                arrayListOf(
-                    arrayListOf("Loading", "Loading", "Loading"),
-                    arrayListOf("Loading", "Loading", "Loading"),
-                )
-            )
-        }
-    }
+    val mealData = remember { mutableStateListOf(arrayListOf(arrayListOf("Loading", "Loading", "Loading"))) }
+    val week = remember { mutableStateListOf<ArrayList<Number>>(arrayListOf(0, 0, 0)) }
     fun updateData() {
         Thread {
             Runnable {
@@ -98,15 +78,40 @@ fun MealView() {
             }.run()
         }.start()
     }
+    fun setWeek() {
+        val newWeek = ArrayList<ArrayList<Number>>()
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DATE, viewingDateDelta.intValue)
+        val viewingWeekDay = calendar.get(Calendar.DAY_OF_WEEK)
+        for (i in 2..6) {
+            val cal = Calendar.getInstance()
+            cal.add(Calendar.DATE, viewingDateDelta.intValue + i - viewingWeekDay)
+            newWeek.add(arrayListOf(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)))
+        }
+        if (week[0] != newWeek[0]) {
+            week.clear()
+            week.addAll(newWeek)
+            mealData.clear()
+            for (i in 0..4) {
+                mealData.add(
+                    arrayListOf(
+                        arrayListOf("Loading", "Loading", "Loading"),
+                        arrayListOf("Loading", "Loading", "Loading"),
+                    )
+                )
+            }
+            updateData()
+        }
+    }
+
     LaunchedEffect(Unit) {
         setWeek()
-        updateData()
     }
     Row(
         modifier = Modifier.fillMaxSize()
     ) {
         for (i in 0..<week.size) {
-            MealCard(week[i], mealData[i], viewingDateDelta.intValue == 0 && i == todayWeekDay - 2)
+            MealCard(week[i], mealData[i], viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2)
         }
     }
     Row(
@@ -120,7 +125,6 @@ fun MealView() {
             onClick = {
                 viewingDateDelta.intValue -= 7
                 setWeek()
-                updateData()
             }
         ) {
             Text("<", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = MaterialTheme.typography.titleLarge.fontSize)
@@ -131,7 +135,6 @@ fun MealView() {
             onClick = {
                 viewingDateDelta.intValue += 7
                 setWeek()
-                updateData()
             }
         ) {
             Text(">", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = MaterialTheme.typography.titleLarge.fontSize)
@@ -147,14 +150,13 @@ fun MealView() {
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (viewingDateDelta.intValue != 0) {
+            if (viewingDateDelta.intValue + todayWeekDay !in 1..7) {
                 Button(
                     modifier = Modifier.padding(8.dp).requiredHeight(50.dp).requiredWidth(170.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xCC2DF07B)),
                     onClick = {
                         viewingDateDelta.intValue = 0
                         setWeek()
-                        updateData()
                     }
                 ) {
                     Text(
@@ -192,11 +194,9 @@ fun MealView() {
                         pickingDate.value = false
                         viewingDateDelta.intValue = datePickerState.selectedDateMillis?.let {
                             val subtractOriginal = (it - 32400000 - Calendar.getInstance().timeInMillis.toDouble()) / 86400000
-                            val subtract = Math.ceil(subtractOriginal).toInt()
-                            if (subtract % 7 >= 0) subtract - subtract % 7 else subtract - subtract % 7 - 7
+                            Math.ceil(subtractOriginal).toInt()
                         } ?: 0
                         setWeek()
-                        updateData()
                     },
                 ) {
                     Text("확인")
