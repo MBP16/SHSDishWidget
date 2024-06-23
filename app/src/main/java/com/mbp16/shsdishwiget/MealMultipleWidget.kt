@@ -69,15 +69,6 @@ class MealMultipleWidget : GlanceAppWidget() {
                     mealData.addAll(data)
                 }.run()
             }.start()
-            mealData.clear()
-            for (i in 0..4) {
-                mealData.add(
-                    arrayListOf(
-                        arrayListOf("완료", "완료", "완료"),
-                        arrayListOf("완료", "완료", "완료"),
-                    )
-                )
-            }
         }
         LaunchedEffect(Unit) {
             setWeek()
