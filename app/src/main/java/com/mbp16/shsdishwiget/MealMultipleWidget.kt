@@ -25,13 +25,14 @@ class MealMultipleWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             GlanceTheme {
-                WidgetContent()
+                WidgetContent(context.getSharedPreferences("meal_multiple_widget", Context.MODE_PRIVATE)
+                    .getBoolean("showNextWeek", false))
             }
         }
     }
 
     @Composable
-    private fun WidgetContent() {
+    private fun WidgetContent(showNextWeek: Boolean = false) {
         val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
         val mealData = remember { mutableStateListOf<ArrayList<ArrayList<String>>>()}
         val week = remember { mutableStateListOf<ArrayList<Number>>() }
@@ -40,6 +41,7 @@ class MealMultipleWidget : GlanceAppWidget() {
             mealData.clear()
             for (i in 2..6) {
                 val cal = Calendar.getInstance()
+                if (showNextWeek) { if (i - todayWeekDay < 0) cal.add(Calendar.DATE, 7) }
                 cal.add(Calendar.DATE, i - todayWeekDay)
                 val day = cal.get(Calendar.DAY_OF_MONTH)
                 val month = cal.get(Calendar.MONTH) + 1
