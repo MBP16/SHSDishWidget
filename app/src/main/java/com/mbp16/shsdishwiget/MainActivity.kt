@@ -31,7 +31,6 @@ class MainActivity : ComponentActivity() {
         val conMan = getSystemService(ConnectivityManager::class.java)
         val networkInfo = conMan.activeNetwork
         val caps = conMan.getNetworkCapabilities(networkInfo)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        println(caps)
         if (caps == false || caps == null) {
             setContent {
                 SHSDishWigetTheme {
@@ -179,11 +178,11 @@ fun MealView() {
     }
     if (pickingDate.value) {
         val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DATE, viewingDateDelta.intValue + 1)
+        calendar.add(Calendar.DATE, viewingDateDelta.intValue)
         val datePickerState = rememberDatePickerState(
-            yearRange = 2023..2025,
+            yearRange = 2022..2030,
             initialDisplayMode = DisplayMode.Picker,
-            initialSelectedDateMillis = calendar.timeInMillis
+            initialSelectedDateMillis = calendar.timeInMillis + 32400000
         )
         DatePickerDialog(
             onDismissRequest = { },
@@ -192,10 +191,9 @@ fun MealView() {
                     onClick = {
                         pickingDate.value = false
                         viewingDateDelta.intValue = datePickerState.selectedDateMillis?.let {
-                            val cal = Calendar.getInstance()
-                            cal.timeInMillis = it
-                            val subtract = ChronoUnit.DAYS.between(Calendar.getInstance().toInstant(), cal.toInstant()).toInt()
-                            if (subtract > 0) subtract - subtract % 7 else subtract - subtract % 7 - 7
+                            val subtractOriginal = (it - 32400000 - Calendar.getInstance().timeInMillis.toDouble()) / 86400000
+                            val subtract = Math.ceil(subtractOriginal).toInt()
+                            if (subtract % 7 >= 0) subtract - subtract % 7 else subtract - subtract % 7 - 7
                         } ?: 0
                         setWeek()
                         updateData()
