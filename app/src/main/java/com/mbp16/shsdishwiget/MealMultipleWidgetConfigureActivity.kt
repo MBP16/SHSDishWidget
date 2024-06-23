@@ -1,7 +1,8 @@
 package com.mbp16.shsdishwiget
 
 import android.app.Activity
-import android.content.Context
+import android.appwidget.AppWidgetManager
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
@@ -45,7 +46,13 @@ fun MealMultipleWidgetConfigureScreen(pref: SharedPreferences, editor: SharedPre
         editor.putBoolean("showNextWeek", showNextWeekChecked.value)
         editor.apply()
         Toast.makeText(activity, "저장 완료", Toast.LENGTH_SHORT).show()
+        val appWidgetId = activity.intent?.extras?.getInt(
+            AppWidgetManager.EXTRA_APPWIDGET_ID,
+            AppWidgetManager.INVALID_APPWIDGET_ID
+        ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+        val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         coroutineScope.launch {
+            activity.setResult(Activity.RESULT_OK, resultValue)
             MealMultipleWidget().updateAll(activity)
             activity.finish()
         }
