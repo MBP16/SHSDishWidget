@@ -1,9 +1,14 @@
 package com.mbp16.shsdishwiget
 
 import android.content.Context
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.*
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
@@ -11,28 +16,29 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.*
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
-import androidx.glance.layout.Column
-import androidx.glance.layout.Row
-import androidx.glance.layout.RowScope
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
-import java.util.Calendar
+import java.util.*
 
 class MealMultipleWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             GlanceTheme {
-                WidgetContent(context.getSharedPreferences("meal_multiple_widget", Context.MODE_PRIVATE)
-                    .getBoolean("showNextWeek", false))
+                WidgetContent()
             }
         }
     }
 
+    override val stateDefinition = PreferencesGlanceStateDefinition
+
     @Composable
-    private fun WidgetContent(showNextWeek: Boolean = false) {
+    private fun WidgetContent() {
+        val prefs = currentState<Preferences>()
+        val showNextWeek = prefs[booleanPreferencesKey("showNextWeek")] ?: false
         val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
         val mealData = remember { mutableStateListOf<ArrayList<ArrayList<String>>>()}
         val week = remember { mutableStateListOf<ArrayList<Number>>() }
@@ -63,6 +69,15 @@ class MealMultipleWidget : GlanceAppWidget() {
                     mealData.addAll(data)
                 }.run()
             }.start()
+            mealData.clear()
+            for (i in 0..4) {
+                mealData.add(
+                    arrayListOf(
+                        arrayListOf("완료", "완료", "완료"),
+                        arrayListOf("완료", "완료", "완료"),
+                    )
+                )
+            }
         }
         LaunchedEffect(Unit) {
             setWeek()
