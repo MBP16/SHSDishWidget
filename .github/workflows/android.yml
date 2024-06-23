@@ -34,4 +34,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: app/build/outputs/apk/debug/app-debug.apk
           tag: ${{ github.ref }}
-          asset_name: SHSDishWidget_$tag.zip
+          asset_name: SHSDishWidget_$tag.apk
