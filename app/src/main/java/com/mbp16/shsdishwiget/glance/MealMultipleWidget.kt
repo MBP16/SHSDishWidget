@@ -1,4 +1,4 @@
-package com.mbp16.shsdishwiget
+package com.mbp16.shsdishwiget.glance
 
 import android.content.Context
 import androidx.compose.runtime.Composable
@@ -21,6 +21,8 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
+import com.mbp16.shsdishwiget.activity.MainActivity
+import com.mbp16.shsdishwiget.utils.GetMealData
 import java.util.*
 
 class MealMultipleWidget : GlanceAppWidget() {
@@ -91,7 +93,7 @@ class MealMultipleWidget : GlanceAppWidget() {
         ) {
             Text(
                 text = "${day[0]}년 ${day[1]}월 ${day[2]}일",
-                style= TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center, color = GlanceTheme.colors.onSurface),
+                style= TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center, color = GlanceTheme.colors.onSurface, fontWeight = FontWeight.Bold),
                 modifier = GlanceModifier.padding(8.dp, 8.dp, 8.dp, 10.dp).fillMaxWidth()
             )
             for (i in dayMeal) {
@@ -99,7 +101,7 @@ class MealMultipleWidget : GlanceAppWidget() {
                     Text(text = i[0], modifier = GlanceModifier.padding(8.dp),
                         style = TextStyle(color = GlanceTheme.colors.error, fontSize = 20.sp, fontWeight = FontWeight.Bold))
                     for (j in i[1].split(",")) {
-                        Text(text = j, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 14.sp),
+                        Text(text = j, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Bold),
                             modifier = GlanceModifier.padding(horizontal = 8.dp, vertical = 2.dp))
                     }
                     Text(text = i[2],

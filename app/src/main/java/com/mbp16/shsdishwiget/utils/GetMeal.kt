@@ -1,8 +1,7 @@
-package com.mbp16.shsdishwiget
+package com.mbp16.shsdishwiget.utils
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import kotlin.collections.ArrayList
 
 fun GetMealData(dates: ArrayList<ArrayList<Number>>): ArrayList<ArrayList<ArrayList<String>>> {
     val ids = ArrayList<ArrayList<String>>()

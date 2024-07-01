@@ -1,13 +1,8 @@
-package com.mbp16.shsdishwiget
+package com.mbp16.shsdishwiget.activity.mainactivityviews
 
 import android.app.Activity
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.Bundle
 import android.os.Looper
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -22,56 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.mbp16.shsdishwiget.ui.theme.SHSDishWigetTheme
+import com.mbp16.shsdishwiget.utils.GetMealData
 import com.valentinilk.shimmer.shimmer
 import java.util.*
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val conMan = getSystemService(ConnectivityManager::class.java)
-        val networkInfo = conMan.activeNetwork
-        val caps = conMan.getNetworkCapabilities(networkInfo)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        if (caps == false || caps == null) {
-            setContent {
-                SHSDishWigetTheme {
-                    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "인터넷 연결이 필요합니다.",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                            Button(
-                                modifier = Modifier.padding(8.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
-                                onClick = {
-                                    recreate()
-                                }
-                            ) {
-                                Text("다시 시도")
-                            }
-                        }
-                    }
-                }
-            }
-            return
-        } else {
-            setContent {
-                SHSDishWigetTheme {
-                    // A surface container using the 'background' color from the theme
-                    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                        MealView(this)
-                    }
-                }
-            }
-        }
-    }
-}
+import kotlin.math.ceil
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -229,7 +178,7 @@ fun MealView(activity: Activity) {
                         pickingDate.value = false
                         viewingDateDelta.intValue = datePickerState.selectedDateMillis?.let {
                             val subtractOriginal = (it - 32400000 - Calendar.getInstance().timeInMillis.toDouble()) / 86400000
-                            Math.ceil(subtractOriginal).toInt()
+                            ceil(subtractOriginal).toInt()
                         } ?: 0
                         setWeek()
                     },
@@ -268,11 +217,14 @@ fun RowScope.MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<Strin
             for (i in dayMeal) {
                 if (i[0] == "Loading") {
                     Card(modifier = Modifier.padding(8.dp).fillMaxWidth().fillMaxHeight().weight(1f).shimmer(), shape = MaterialTheme.shapes.medium) {
-                        Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(MaterialTheme.colorScheme.error))
+                        Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(
+                            MaterialTheme.colorScheme.error))
                         for (j in 0..6) {
-                            Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(MaterialTheme.colorScheme.onSurface))
+                            Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(
+                                MaterialTheme.colorScheme.onSurface))
                         }
-                        Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(MaterialTheme.colorScheme.primary))
+                        Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(
+                            MaterialTheme.colorScheme.primary))
                     }
                 } else {
                     Card(modifier = Modifier.padding(8.dp).fillMaxWidth().fillMaxHeight().weight(1f), shape = MaterialTheme.shapes.medium) {

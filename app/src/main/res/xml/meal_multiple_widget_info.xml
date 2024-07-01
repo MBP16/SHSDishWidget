@@ -9,4 +9,4 @@
                     android:resizeMode="horizontal|vertical"
                     android:widgetCategory="home_screen"
                     android:widgetFeatures="reconfigurable"
-                    android:configure="com.mbp16.shsdishwiget.MealMultipleWidgetConfigureActivity"/>
+                    android:configure="com.mbp16.shsdishwiget.activity.widgetconfigure.MealMultipleWidgetConfigureActivity"/>

@@ -1,4 +1,4 @@
-package com.mbp16.shsdishwiget
+package com.mbp16.shsdishwiget.activity.widgetconfigure
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
@@ -18,6 +18,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
+import com.mbp16.shsdishwiget.glance.MealMultipleWidget
 import com.mbp16.shsdishwiget.ui.theme.SHSDishWigetTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

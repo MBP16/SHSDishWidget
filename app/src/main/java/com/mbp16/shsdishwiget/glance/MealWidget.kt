@@ -1,22 +1,26 @@
-package com.mbp16.shsdishwiget
+package com.mbp16.shsdishwiget.glance
 
 import android.content.Context
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.*
+import androidx.glance.action.actionStartActivity
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.*
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
-import androidx.glance.Button
-import androidx.glance.action.actionStartActivity
-import androidx.glance.action.clickable
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
-import java.util.Calendar
+import com.mbp16.shsdishwiget.activity.MainActivity
+import com.mbp16.shsdishwiget.utils.GetMealSignleWidget
+import java.util.*
 
 class MealWidget : GlanceAppWidget() {
 
@@ -63,18 +67,18 @@ class MealWidget : GlanceAppWidget() {
         {
             Text(
                 text = "${today[0]}년 ${today[1]}월 ${today[2]}일",
-                style= TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center, color = GlanceTheme.colors.onSurface),
+                style= TextStyle(fontSize = 28.sp, textAlign = TextAlign.Center, color = GlanceTheme.colors.onSurface, fontWeight = FontWeight.Bold),
                 modifier = GlanceModifier.padding(8.dp).fillMaxWidth()
             )
             Text(
                 text = todayMeal[0],
-                style = TextStyle(color = GlanceTheme.colors.error, fontSize = 24.sp, fontWeight = FontWeight.Bold),
+                style = TextStyle(color = GlanceTheme.colors.error, fontSize = 20.sp, fontWeight = FontWeight.Bold),
                 modifier = GlanceModifier.padding(8.dp, 8.dp, 8.dp, 12.dp)
             )
             for (i in todayMeal[1].split(",")) {
                 Text(
                     text = i,
-                    style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 18.sp),
+                    style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 18.sp, fontWeight = FontWeight.Bold),
                     modifier = GlanceModifier.padding(horizontal = 8.dp, vertical = 3.dp)
                 )
             }
