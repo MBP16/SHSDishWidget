@@ -21,6 +21,7 @@ fun checkUpdate(activity: Activity): Any {
     val releases = connection.getInputStream().bufferedReader().use { it.readText() }
     val parsedObject = Gson().fromJson(releases, Array<Release>::class.java)
     val latestRelease = parsedObject[0]
+    if (latestRelease.assets.isEmpty()) return false
     val currentVersion = activity.packageManager.getPackageInfo(activity.packageName, 0).versionName
     return if (latestRelease.tag_name != currentVersion) {
         latestRelease
