@@ -19,7 +19,6 @@
                 android:name=".activity.MainActivity"
                 android:exported="true"
                 android:label="@string/app_name"
-                android:screenOrientation="landscape"
                 android:theme="@style/Theme.SHSDishWiget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -28,6 +27,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.widgetconfigure.MealMultipleWidgetConfigureActivity" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.widgetconfigure.MealWidgetConfigureActivity" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>

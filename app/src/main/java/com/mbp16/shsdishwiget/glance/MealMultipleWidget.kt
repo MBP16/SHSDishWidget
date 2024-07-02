@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.*
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
@@ -88,25 +89,32 @@ class MealMultipleWidget : GlanceAppWidget() {
 
     @Composable
     fun RowScope.MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<String>>) {
+        val prefs = currentState<Preferences>()
+        val margin = prefs[intPreferencesKey("margin")] ?: 8
+        val dateFontSize = prefs[intPreferencesKey("dateFontSize")] ?: 28
+        val titleFontSize = prefs[intPreferencesKey("titleFontSize")] ?: 20
+        val mealFontSize = prefs[intPreferencesKey("mealFontSize")] ?: 18
+        val calorieFontSize = prefs[intPreferencesKey("calorieFontSize")] ?: 20
+
         Column (
-            modifier = GlanceModifier.defaultWeight().fillMaxHeight().padding(8.dp),
+            modifier = GlanceModifier.defaultWeight().fillMaxHeight().padding(margin.dp),
         ) {
             Text(
                 text = "${day[0]}년 ${day[1]}월 ${day[2]}일",
-                style= TextStyle(fontSize = 24.sp, textAlign = TextAlign.Center, color = GlanceTheme.colors.onSurface, fontWeight = FontWeight.Bold),
-                modifier = GlanceModifier.padding(8.dp, 8.dp, 8.dp, 10.dp).fillMaxWidth()
+                style= TextStyle(fontSize = dateFontSize.sp, textAlign = TextAlign.Center, color = GlanceTheme.colors.onSurface, fontWeight = FontWeight.Bold),
+                modifier = GlanceModifier.padding(margin.dp).fillMaxWidth()
             )
             for (i in dayMeal) {
-                Column (modifier = GlanceModifier.padding(8.dp).fillMaxWidth().fillMaxHeight().defaultWeight()) {
-                    Text(text = i[0], modifier = GlanceModifier.padding(8.dp),
-                        style = TextStyle(color = GlanceTheme.colors.error, fontSize = 20.sp, fontWeight = FontWeight.Bold))
+                Column (modifier = GlanceModifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().defaultWeight()) {
+                    Text(text = i[0], modifier = GlanceModifier.padding(margin.dp),
+                        style = TextStyle(color = GlanceTheme.colors.error, fontSize = titleFontSize.sp, fontWeight = FontWeight.Bold))
                     for (j in i[1].split(",")) {
-                        Text(text = j, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Bold),
-                            modifier = GlanceModifier.padding(horizontal = 8.dp, vertical = 2.dp))
+                        Text(text = j, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = mealFontSize.sp, fontWeight = FontWeight.Bold),
+                            modifier = GlanceModifier.padding(horizontal = margin.dp, vertical = (margin/4.0).dp))
                     }
                     Text(text = i[2],
-                        style = TextStyle(color = GlanceTheme.colors.primary, fontSize = 16.sp, fontWeight = FontWeight.Bold),
-                        modifier = GlanceModifier.padding(8.dp))
+                        style = TextStyle(color = GlanceTheme.colors.primary, fontSize = calorieFontSize.sp, fontWeight = FontWeight.Bold),
+                        modifier = GlanceModifier.padding(margin.dp))
                 }
             }
         }

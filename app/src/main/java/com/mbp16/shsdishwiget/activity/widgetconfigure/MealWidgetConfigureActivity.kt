@@ -15,24 +15,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.mbp16.shsdishwiget.activity.TextStyleChange
-import com.mbp16.shsdishwiget.glance.MealMultipleWidget
+import com.mbp16.shsdishwiget.glance.MealWidget
 import com.mbp16.shsdishwiget.ui.theme.SHSDishWigetTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class MealMultipleWidgetConfigureActivity : ComponentActivity() {
+class MealWidgetConfigureActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SHSDishWigetTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    MealMultipleWidgetConfigureScreen(this)
+                    MealWidgetConfigureScreen(this)
                 }
             }
         }
@@ -40,8 +39,7 @@ class MealMultipleWidgetConfigureActivity : ComponentActivity() {
 }
 
 @Composable
-fun MealMultipleWidgetConfigureScreen(activity: Activity) {
-    val showNextWeekChecked = remember { mutableStateOf(false) }
+fun MealWidgetConfigureScreen(activity: Activity) {
     val margin = remember { mutableIntStateOf(8) }
     val dateFontSize = remember { mutableIntStateOf(24) }
     val titleFontSize = remember { mutableIntStateOf(20) }
@@ -58,8 +56,7 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
 
     LaunchedEffect(Unit) {
         CoroutineScope(coroutineContext).launch {
-            MealMultipleWidget().getAppWidgetState<Preferences>(activity, glanceId).let {
-                showNextWeekChecked.value = it[booleanPreferencesKey("showNextWeek")] ?: false
+            MealWidget().getAppWidgetState<Preferences>(activity, glanceId).let {
                 margin.intValue = it[intPreferencesKey("margin")] ?: 8
                 dateFontSize.intValue = it[intPreferencesKey("dateFontSize")] ?: 24
                 titleFontSize.intValue = it[intPreferencesKey("titleFontSize")] ?: 20
@@ -74,14 +71,13 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
         coroutineScope.launch {
             try {
                 updateAppWidgetState(activity, glanceId) {
-                    it[booleanPreferencesKey("showNextWeek")] = showNextWeekChecked.value
                     it[intPreferencesKey("margin")] = margin.intValue
                     it[intPreferencesKey("dateFontSize")] = dateFontSize.intValue
                     it[intPreferencesKey("titleFontSize")] = titleFontSize.intValue
                     it[intPreferencesKey("mealFontSize")] = mealFontSize.intValue
                     it[intPreferencesKey("calorieFontSize")] = calorieFontSize.intValue
                 }
-                MealMultipleWidget().update(activity, glanceId)
+                MealWidget().update(activity, glanceId)
                 Toast.makeText(activity, "저장 완료", Toast.LENGTH_SHORT).show()
                 activity.setResult(Activity.RESULT_OK, resultValue)
                 activity.finish()
@@ -98,22 +94,6 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
                 modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp)
             )
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text="지난 요일은 다음 주 급식 미리 보여주기",
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize
-                )
-                Switch(
-                    checked = showNextWeekChecked.value,
-                    onCheckedChange = {
-                        showNextWeekChecked.value = it
-                    }
-                )
-            }
             Row(
                 modifier = Modifier.fillMaxWidth().padding(16.dp, 0.dp, 16.dp, 16.dp),
                 verticalAlignment = Alignment.CenterVertically,

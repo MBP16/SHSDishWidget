@@ -7,5 +7,7 @@
                     android:previewImage="@drawable/meal_widget_preview"
                     android:description="@string/app_widget_description"
                     android:resizeMode="horizontal|vertical"
+                    android:widgetFeatures="reconfigurable"
+                    android:configure="com.mbp16.shsdishwiget.activity.widgetconfigure.MealWidgetConfigureActivity"
                     android:widgetCategory="home_screen">
 </appwidget-provider>
