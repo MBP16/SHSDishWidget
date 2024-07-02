@@ -1,10 +1,7 @@
 package com.mbp16.shsdishwiget.glance
 
 import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
@@ -40,6 +37,7 @@ class MealMultipleWidget : GlanceAppWidget() {
 
     @Composable
     private fun WidgetContent() {
+        val errorOcurred = remember { mutableStateOf(false) }
         val prefs = currentState<Preferences>()
         val showNextWeek = prefs[booleanPreferencesKey("showNextWeek")] ?: false
         val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
@@ -65,13 +63,27 @@ class MealMultipleWidget : GlanceAppWidget() {
             }
         }
         fun updateData() {
-            Thread {
+            fun threadExceptionHandler() {
+                errorOcurred.value = true
+                mealData.clear()
+                for (i in 2..6) {
+                    mealData.add(
+                        arrayListOf(
+                            arrayListOf("Error", "Error", "Error"),
+                            arrayListOf("Error", "Error", "Error"),
+                        )
+                    )
+                }
+            }
+            val thread = Thread {
                 Runnable {
                     val data = GetMealData(ArrayList(week))
                     mealData.clear()
                     mealData.addAll(data)
                 }.run()
-            }.start()
+            }
+            thread.setUncaughtExceptionHandler { _, _ -> threadExceptionHandler() }
+            thread.start()
         }
         LaunchedEffect(Unit) {
             setWeek()
@@ -83,6 +95,26 @@ class MealMultipleWidget : GlanceAppWidget() {
         ) {
             for (i in 0..<week.size) {
                 MealCard(week[i], mealData[i])
+            }
+        }
+        if (errorOcurred.value) {
+            Box(
+                modifier = GlanceModifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Button(
+                    text = "↺",
+                    onClick = {
+                        errorOcurred.value = false
+                        setWeek()
+                        updateData()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = GlanceTheme.colors.surface,
+                        contentColor = GlanceTheme.colors.error
+                    ),
+                    modifier = GlanceModifier.padding(8.dp).width(50.dp).height(50.dp)
+                )
             }
         }
     }

@@ -62,11 +62,17 @@ class MealWidget : GlanceAppWidget() {
             )
             var mealType = 0
             if (calendar.get(Calendar.HOUR_OF_DAY) >= 13) mealType = 1
-            Thread {
+            fun threadExceptionHandler() {
+                todayMeal.clear()
+                todayMeal.addAll(arrayListOf("Error", "Error", "Error"))
+            }
+            val thread = Thread {
                 val data = GetMealSignleWidget(today[0], today[1], today[2], mealType)
                 todayMeal.clear()
                 todayMeal.addAll(data)
-            }.start()
+            }
+            thread.setUncaughtExceptionHandler { _, _ -> threadExceptionHandler() }
+            thread.start()
         }
         LaunchedEffect(Unit) {
             updateInfo()
