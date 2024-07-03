@@ -36,7 +36,7 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           PASSWORD: ${{ secrets.PASSWORD }}
         run: |
-          echo $KEYSTORE_BASE64 | base64 -d > mbp16.keystore
+          echo -n $KEYSTORE_BASE64 | base64 -d > mbp16.keystore
           cp ./mbp16.keystore ./app/mbp16.keystore
           bash ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=mbp16.keystore \
