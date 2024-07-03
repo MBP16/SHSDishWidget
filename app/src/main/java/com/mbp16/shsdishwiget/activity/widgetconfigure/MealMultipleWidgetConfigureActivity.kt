@@ -10,6 +10,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -169,21 +172,19 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
         TextStyleChange("급식 표기 설정", mealFontSize, mealColor)
         Divider()
         TextStyleChange("칼로리 표기 설정", calorieFontSize, calorieColor)
-        Column(modifier = Modifier.requiredHeight(60.dp)){}
     }
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
+        contentAlignment = Alignment.BottomEnd
     ) {
-        Button(
+        FloatingActionButton(
             onClick = {
                 saveData()
             },
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary)
+            containerColor = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(16.dp),
         ) {
-            Text(text = "저장")
+            Icon(imageVector = Icons.Outlined.Check, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
         }
     }
 }

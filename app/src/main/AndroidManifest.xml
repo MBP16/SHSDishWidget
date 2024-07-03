@@ -26,6 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".activity.SettingsActivity" android:exported="false"/>
         <activity android:name=".activity.widgetconfigure.MealMultipleWidgetConfigureActivity" android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
@@ -36,6 +37,11 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
+
+        <activity android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+        <activity android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
 
         <receiver
                 android:name=".glance.MealWidgetReceiver"

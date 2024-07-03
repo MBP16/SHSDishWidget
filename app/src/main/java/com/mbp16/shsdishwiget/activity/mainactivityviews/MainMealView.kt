@@ -1,22 +1,39 @@
 package com.mbp16.shsdishwiget.activity.mainactivityviews
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context.CLIPBOARD_SERVICE
+import android.content.Intent
+import android.graphics.Color.parseColor
+import android.os.Build
 import android.os.Looper
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.action.actionStartActivity
+import com.mbp16.shsdishwiget.activity.SettingsActivity
+import com.mbp16.shsdishwiget.activity.settingsactivityviews.MainActivitySettingDataStore.Companion.dataStore
 import com.mbp16.shsdishwiget.utils.GetMealData
 import com.valentinilk.shimmer.shimmer
 import java.util.*
@@ -25,11 +42,19 @@ import kotlin.math.ceil
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MealView(activity: Activity) {
+    val dataStore = (LocalContext.current).dataStore
+    val clipboardManager = activity.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+
+    val margin = remember { mutableIntStateOf(8) }
+    val fontSizeArray = remember { mutableStateListOf(32, 20, 18, 20) }
+    val colorArray = remember { mutableStateListOf("ff171b1e", "ffe2e3e5", "ffe4bebd", "ffe2e3e5", "ff8dcae7", "cc2df07b") }
+
     val pickingDate = remember { mutableStateOf(false) }
     val viewingDateDelta = remember { mutableIntStateOf(0) }
     val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
     val mealData = remember { mutableStateListOf(arrayListOf(arrayListOf("Loading", "Loading", "Loading"))) }
     val week = remember { mutableStateListOf<ArrayList<Number>>(arrayListOf(0, 0, 0)) }
+
     fun updateData() {
         fun exceptionHandler() {
             object : Thread() {
@@ -90,21 +115,36 @@ fun MealView(activity: Activity) {
 
     LaunchedEffect(Unit) {
         setWeek()
+        dataStore.data.collect { preferences ->
+            margin.intValue = preferences[intPreferencesKey("margin")] ?: 8
+            fontSizeArray[0] = preferences[intPreferencesKey("dateFontSize")] ?: 32
+            fontSizeArray[1] = preferences[intPreferencesKey("titleFontSize")] ?: 20
+            fontSizeArray[2] = preferences[intPreferencesKey("mealFontSize")] ?: 18
+            fontSizeArray[3] = preferences[intPreferencesKey("calorieFontSize")] ?: 20
+            colorArray[0] = preferences[stringPreferencesKey("backgroundColor")] ?: "ff171b1e"
+            colorArray[1] = preferences[stringPreferencesKey("dateColor")] ?: "ffe2e3e5"
+            colorArray[2] = preferences[stringPreferencesKey("titleColor")] ?: "ffe4bebd"
+            colorArray[3] = preferences[stringPreferencesKey("mealColor")] ?: "ffe2e3e5"
+            colorArray[4] = preferences[stringPreferencesKey("calorieColor")] ?: "ff8dcae7"
+            colorArray[5] = preferences[stringPreferencesKey("todayColor")] ?: "cc2df07b"
+        }
     }
+
     Row(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().background(Color(parseColor("#${colorArray[0]}"))),
     ) {
         for (i in 0..<week.size) {
-            MealCard(week[i], mealData[i], viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2)
+            MealCard(clipboardManager, margin.intValue, fontSizeArray, colorArray, week[i], mealData[i],
+                viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2, activity)
         }
     }
     Row(
-        modifier = Modifier.fillMaxSize().padding(8.dp),
+        modifier = Modifier.fillMaxSize().padding(margin.intValue.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(
-            modifier = Modifier.padding(8.dp).requiredWidth(50.dp).requiredHeight(50.dp),
+            modifier = Modifier.padding(margin.intValue.dp).requiredWidth(50.dp).requiredHeight(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             onClick = {
                 viewingDateDelta.intValue -= 7
@@ -114,7 +154,7 @@ fun MealView(activity: Activity) {
             Text("<", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = MaterialTheme.typography.titleLarge.fontSize)
         }
         Button(
-            modifier = Modifier.padding(8.dp).requiredWidth(50.dp).requiredHeight(50.dp),
+            modifier = Modifier.padding(margin.intValue.dp).requiredWidth(50.dp).requiredHeight(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             onClick = {
                 viewingDateDelta.intValue += 7
@@ -136,7 +176,7 @@ fun MealView(activity: Activity) {
         ) {
             if (viewingDateDelta.intValue + todayWeekDay !in 1..7) {
                 Button(
-                    modifier = Modifier.padding(8.dp).requiredHeight(50.dp).requiredWidth(170.dp),
+                    modifier = Modifier.padding(margin.intValue.dp).requiredHeight(50.dp).requiredWidth(170.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xCC2DF07B)),
                     onClick = {
                         viewingDateDelta.intValue = 0
@@ -155,10 +195,19 @@ fun MealView(activity: Activity) {
                 onClick = {
                     pickingDate.value = !pickingDate.value
                 },
-                modifier = Modifier.padding(8.dp).requiredWidth(50.dp).requiredHeight(50.dp).clip(CircleShape)
+                modifier = Modifier.padding(margin.intValue.dp).requiredWidth(50.dp).requiredHeight(50.dp).clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary),
             ) {
                 Icon(imageVector = Icons.Outlined.DateRange, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
+            }
+            IconButton(
+                onClick = {
+                    Intent(activity, SettingsActivity::class.java).also { startActivity(activity, it, null) }
+                },
+                modifier = Modifier.padding(margin.intValue.dp).requiredWidth(50.dp).requiredHeight(50.dp).clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+            ) {
+                Icon(imageVector = Icons.Outlined.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
             }
         }
     }
@@ -204,36 +253,45 @@ fun MealView(activity: Activity) {
 }
 
 @Composable
-fun RowScope.MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<String>>, isToday: Boolean) {
+fun RowScope.MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: SnapshotStateList<Int>,
+                      colorArray: SnapshotStateList<String>, day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<String>>,
+                      isToday: Boolean, activity: Activity) {
     Column (
-        modifier = Modifier.weight(1f).fillMaxHeight().padding(8.dp),
+        modifier = Modifier.weight(1f).fillMaxHeight().padding(margin.dp),
     ) {
         Text(
-            text = "${day[0]}년 ${day[1]}월 ${day[2]}일", style = MaterialTheme.typography.displaySmall,
-            color = (isToday).let { if (it) Color(0xCC2DF07B) else MaterialTheme.colorScheme.onSurface },
-            modifier = Modifier.padding(8.dp).fillMaxWidth(), textAlign = TextAlign.Center
+            text = "${day[0]}년 ${day[1]}월 ${day[2]}일", fontSize = fontSizeArray[0].sp,
+            color = (isToday).let { if (it) Color(parseColor("#${colorArray[5]}")) else Color(parseColor("#${colorArray[1]}")) },
+            modifier = Modifier.padding(margin.dp).fillMaxWidth(), textAlign = TextAlign.Center
         )
         Column (modifier = Modifier.fillMaxWidth()) {
             for (i in dayMeal) {
                 if (i[0] == "Loading") {
-                    Card(modifier = Modifier.padding(8.dp).fillMaxWidth().fillMaxHeight().weight(1f).shimmer(), shape = MaterialTheme.shapes.medium) {
-                        Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(
-                            MaterialTheme.colorScheme.error))
+                    Card(modifier = Modifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().weight(1f).shimmer(), shape = MaterialTheme.shapes.medium) {
+                        Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp).background(
+                            Color(parseColor("#${colorArray[2]}"))))
                         for (j in 0..6) {
-                            Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(
-                                MaterialTheme.colorScheme.onSurface))
+                            Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp).background(
+                                Color(parseColor("#${colorArray[3]}"))))
                         }
-                        Box(modifier = Modifier.padding(8.dp).fillMaxWidth().requiredHeight(12.dp).background(
-                            MaterialTheme.colorScheme.primary))
+                        Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp).background(
+                            Color(parseColor("#${colorArray[4]}"))))
                     }
                 } else {
-                    Card(modifier = Modifier.padding(8.dp).fillMaxWidth().fillMaxHeight().weight(1f), shape = MaterialTheme.shapes.medium) {
-                        Text(text = i[0], style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(8.dp), color = MaterialTheme.colorScheme.error)
-                        Text(text = i[1].replace(",", "\n").replace(" ", ""), style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(8.dp))
-                        Text(text = i[2], style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(8.dp), color= MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                    Card(shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().weight(1f).clickable {
+                            clipboardManager.setPrimaryClip(ClipData.newPlainText("meal", i[1].replace(",", "\n").replace(" ", "")))
+                            if (Build.VERSION.SDK_INT <= 32) {
+                                Toast.makeText(activity, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT).show()
+                            }
+                        }) {
+                        Text(text = i[0], fontSize = fontSizeArray[1].sp,
+                            color = Color(parseColor("#${colorArray[2]}")), modifier = Modifier.padding(margin.dp))
+                        Text(text = i[1].replace(",", "\n").replace(" ", ""), fontSize = fontSizeArray[2].sp,
+                            color = Color(parseColor("#${colorArray[3]}")), modifier = Modifier.padding(margin.dp))
+                        Text(text = i[2], fontSize = fontSizeArray[3].sp,
+                            color = Color(parseColor("#${colorArray[4]}")),
+                            modifier = Modifier.padding(margin.dp), fontWeight = FontWeight.Bold)
                     }
                 }
             }

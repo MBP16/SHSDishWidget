@@ -14,7 +14,7 @@ data class Release(
     val body: String
 )
 
-fun checkUpdate(activity: Activity): Any {
+fun getUpdate(activity: Activity): Any {
     val url = URL("https://api.github.com/repos/MBP16/SHSDishWidget/releases")
     val connection = url.openConnection()
     connection.setRequestProperty("Accept", "application/vnd.github.v3+json")

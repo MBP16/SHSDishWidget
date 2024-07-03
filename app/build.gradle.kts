@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.android.gms.oss-licenses-plugin")
 }
 
 android {
@@ -48,15 +49,15 @@ android {
 }
 
 dependencies {
-
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("com.google.android.gms:play-services-oss-licenses:17.1.0")
     implementation("org.jsoup:jsoup:1.17.2")
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("androidx.glance:glance-appwidget:1.1.0")

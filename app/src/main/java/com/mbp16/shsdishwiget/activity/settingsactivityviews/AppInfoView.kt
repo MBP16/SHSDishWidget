@@ -1,0 +1,107 @@
+package com.mbp16.shsdishwiget.activity.settingsactivityviews
+
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.os.Looper
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
+import com.mbp16.shsdishwiget.activity.mainactivityviews.UpdateView
+import com.mbp16.shsdishwiget.utils.Release
+import com.mbp16.shsdishwiget.utils.getUpdate
+import com.mbp16.shsdishwiget.R
+
+@Composable
+fun AppInfoView(activity: Activity) {
+    val dialogViewing = remember { mutableStateOf(false) }
+    var result: Any = false
+
+    fun checkUpdate() {
+        val thread = Thread() {
+            result = getUpdate(activity)
+            if (result != false) {
+                dialogViewing.value = true
+            } else {
+                object : Thread() {
+                    override fun run() {
+                        Looper.prepare()
+                        Toast.makeText(activity, "업데이트가 없습니다", Toast.LENGTH_SHORT).show()
+                        Looper.loop()
+                    }
+                }.start()
+            }
+        }
+        thread.setUncaughtExceptionHandler { _, _ -> dialogViewing.value = false }
+        thread.start()
+    }
+
+    if (dialogViewing.value) {
+        UpdateView(dialogViewing = dialogViewing, result = result as Release, activity = activity)
+    }
+
+    Text(text = "앱 정보", modifier = Modifier
+        .fillMaxWidth()
+        .padding(20.dp),
+        fontSize = MaterialTheme.typography.displaySmall.fontSize)
+    Text(
+        text="오픈소스 라이선스",
+        modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(64.dp)
+            .padding(20.dp)
+            .clickable {
+                Intent(activity, OssLicensesMenuActivity::class.java).also {
+                    startActivity(
+                        activity,
+                        it,
+                        null
+                    )
+                }
+            },
+        fontSize = MaterialTheme.typography.titleMedium.fontSize
+    )
+    Divider()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(64.dp)
+            .padding(20.dp)
+            .clickable { checkUpdate() },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = "버전", fontSize = MaterialTheme.typography.titleMedium.fontSize)
+        Text(text = activity.packageManager.getPackageInfo(activity.packageName, 0).versionName)
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp)
+    ) {
+        Image(painter = painterResource(id = R.drawable.github), contentDescription = "GITHUB",
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+            modifier = Modifier.size(32.dp).clickable {
+                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/MBP16")))
+            })
+        Image(painter = painterResource(id = R.drawable.discord), contentDescription = "DISCORD",
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+            modifier = Modifier.size(64.dp).padding(start = 16.dp).clickable {
+                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.com/users/783147071808471090")))
+            })
+    }
+}
