@@ -118,7 +118,7 @@ class MealMultipleWidget : GlanceAppWidget() {
                     },
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = ColorProvider(Color(parseColor("#$backgroundColor"))),
-                        contentColor = GlanceTheme.colors.error
+                        contentColor = ColorProvider(Color(parseColor("#ffe4bebd")))
                     ),
                     modifier = GlanceModifier.padding(8.dp).width(50.dp).height(50.dp)
                 )

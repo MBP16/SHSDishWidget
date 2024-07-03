@@ -1,6 +1,10 @@
 package com.mbp16.shsdishwiget.glance
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color.parseColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
@@ -73,6 +77,7 @@ class MealWidget : GlanceAppWidget() {
             var mealType = 0
             if (calendar.get(Calendar.HOUR_OF_DAY) >= 13) mealType = 1
             fun threadExceptionHandler() {
+                errorOcurred.value = true
                 todayMeal.clear()
                 todayMeal.addAll(arrayListOf("Error", "Error", "Error"))
             }
@@ -129,7 +134,7 @@ class MealWidget : GlanceAppWidget() {
                     },
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = ColorProvider(Color(parseColor("#$backgroundColor"))),
-                        contentColor = GlanceTheme.colors.error
+                        contentColor = ColorProvider(Color(parseColor("#ffe4bebd")))
                     ),
                     modifier = GlanceModifier.padding(8.dp).width(50.dp).height(50.dp)
                 )
