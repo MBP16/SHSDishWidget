@@ -1,10 +1,6 @@
 package com.mbp16.shsdishwiget.glance
 
-import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color.parseColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
