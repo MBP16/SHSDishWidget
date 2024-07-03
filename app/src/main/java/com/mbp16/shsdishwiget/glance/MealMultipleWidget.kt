@@ -1,12 +1,15 @@
 package com.mbp16.shsdishwiget.glance
 
 import android.content.Context
+import android.graphics.Color.parseColor
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.*
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
@@ -19,6 +22,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import com.mbp16.shsdishwiget.activity.MainActivity
 import com.mbp16.shsdishwiget.utils.GetMealData
 import java.util.*
@@ -38,8 +42,11 @@ class MealMultipleWidget : GlanceAppWidget() {
     @Composable
     private fun WidgetContent() {
         val errorOcurred = remember { mutableStateOf(false) }
+
         val prefs = currentState<Preferences>()
         val showNextWeek = prefs[booleanPreferencesKey("showNextWeek")] ?: false
+        val backgroundColor = prefs[stringPreferencesKey("backgroundColor")] ?: "ff171b1e"
+
         val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
         val mealData = remember { mutableStateListOf<ArrayList<ArrayList<String>>>()}
         val week = remember { mutableStateListOf<ArrayList<Number>>() }
@@ -90,7 +97,7 @@ class MealMultipleWidget : GlanceAppWidget() {
             updateData()
         }
         Row(
-            modifier = GlanceModifier.fillMaxSize().background(GlanceTheme.colors.surface)
+            modifier = GlanceModifier.fillMaxSize().background(ColorProvider(Color(parseColor("#$backgroundColor"))))
                 .clickable(actionStartActivity<MainActivity>())
         ) {
             for (i in 0..<week.size) {
@@ -110,7 +117,7 @@ class MealMultipleWidget : GlanceAppWidget() {
                         updateData()
                     },
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = GlanceTheme.colors.surface,
+                        backgroundColor = ColorProvider(Color(parseColor("#$backgroundColor"))),
                         contentColor = GlanceTheme.colors.error
                     ),
                     modifier = GlanceModifier.padding(8.dp).width(50.dp).height(50.dp)
@@ -123,29 +130,36 @@ class MealMultipleWidget : GlanceAppWidget() {
     fun RowScope.MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<String>>) {
         val prefs = currentState<Preferences>()
         val margin = prefs[intPreferencesKey("margin")] ?: 8
+
         val dateFontSize = prefs[intPreferencesKey("dateFontSize")] ?: 28
         val titleFontSize = prefs[intPreferencesKey("titleFontSize")] ?: 20
         val mealFontSize = prefs[intPreferencesKey("mealFontSize")] ?: 18
         val calorieFontSize = prefs[intPreferencesKey("calorieFontSize")] ?: 20
+
+        val dateColor = prefs[stringPreferencesKey("dateColor")] ?: "ffe2e3e5"
+        val titleColor = prefs[stringPreferencesKey("titleColor")] ?: "ffe4bebd"
+        val mealColor = prefs[stringPreferencesKey("mealColor")] ?: "ffe2e3e5"
+        val calorieColor = prefs[stringPreferencesKey("calorieColor")] ?: "ff8dcae7"
 
         Column (
             modifier = GlanceModifier.defaultWeight().fillMaxHeight().padding(margin.dp),
         ) {
             Text(
                 text = "${day[0]}년 ${day[1]}월 ${day[2]}일",
-                style= TextStyle(fontSize = dateFontSize.sp, textAlign = TextAlign.Center, color = GlanceTheme.colors.onSurface, fontWeight = FontWeight.Bold),
+                style= TextStyle(fontSize = dateFontSize.sp, textAlign = TextAlign.Center,
+                    color = ColorProvider(Color(parseColor("#$dateColor"))), fontWeight = FontWeight.Bold),
                 modifier = GlanceModifier.padding(margin.dp).fillMaxWidth()
             )
             for (i in dayMeal) {
                 Column (modifier = GlanceModifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().defaultWeight()) {
                     Text(text = i[0], modifier = GlanceModifier.padding(margin.dp),
-                        style = TextStyle(color = GlanceTheme.colors.error, fontSize = titleFontSize.sp, fontWeight = FontWeight.Bold))
+                        style = TextStyle(color = ColorProvider(Color(parseColor("#$titleColor"))), fontSize = titleFontSize.sp, fontWeight = FontWeight.Bold))
                     for (j in i[1].split(",")) {
-                        Text(text = j, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = mealFontSize.sp, fontWeight = FontWeight.Bold),
+                        Text(text = j, style = TextStyle(color = ColorProvider(Color(parseColor("#$mealColor"))), fontSize = mealFontSize.sp, fontWeight = FontWeight.Bold),
                             modifier = GlanceModifier.padding(horizontal = margin.dp, vertical = (margin/4.0).dp))
                     }
                     Text(text = i[2],
-                        style = TextStyle(color = GlanceTheme.colors.primary, fontSize = calorieFontSize.sp, fontWeight = FontWeight.Bold),
+                        style = TextStyle(color = ColorProvider(Color(parseColor("#$calorieColor"))), fontSize = calorieFontSize.sp, fontWeight = FontWeight.Bold),
                         modifier = GlanceModifier.padding(margin.dp))
                 }
             }
