@@ -34,7 +34,7 @@ jobs:
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          PASSSORD: ${{ secrets.PASSWORD }}
+          PASSWORD: ${{ secrets.PASSWORD }}
         run: |
           echo $KEYSTORE_BASE64 | base64 -d > mbp16.keystore
           cp ./mbp16.keystore ./app/mbp16.keystore
