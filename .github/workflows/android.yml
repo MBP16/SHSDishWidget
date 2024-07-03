@@ -21,17 +21,34 @@ jobs:
           distribution: 'temurin'
           java-version: 17
       - name: Build debug APK
+        if: github.event_name != 'release'
         run: bash ./gradlew assembleDebug --stacktrace
       - name: Upload APK
+        if: github.event_name != 'release'
         uses: actions/upload-artifact@v4
         with:
           name: SHSDishWidget_debug
           path: app/build/outputs/apk/debug
+      - name: Build release APK
+        if: github.event_name == 'release'
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          PASSSORD: ${{ secrets.PASSWORD }}
+        run: |
+          echo $KEYSTORE_BASE64 | base64 -d > mbp16.keystore
+          cp ./mbp16.keystore ./app/mbp16.keystore
+          bash ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=mbp16.keystore \
+            -Pandroid.injected.signing.store.password=$PASSWORD \
+            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$PASSWORD \
+            --stacktrace
       - name: Upload to Release
         if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: app/build/outputs/apk/debug/app-debug.apk
+          file: app/build/outputs/apk/release/app-release.apk
           tag: ${{ github.ref }}
           asset_name: SHSDishWidget_$tag.apk
