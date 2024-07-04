@@ -78,6 +78,7 @@ fun ColorChangingRow(colorVariable: MutableState<String>) {
 @Composable
 fun ColorPickerDialog(changingColor: MutableState<Boolean>, colorVariable: MutableState<String>) {
     val controller = rememberColorPickerController()
+    val currentColor = remember { mutableStateOf("ffffffff") }
 
     LaunchedEffect(Unit) {
         controller.selectByColor(Color(parseColor("#" + colorVariable.value)), false)
@@ -101,7 +102,7 @@ fun ColorPickerDialog(changingColor: MutableState<Boolean>, colorVariable: Mutab
                     modifier = Modifier.fillMaxWidth().height(300.dp).padding(10.dp),
                     controller = controller,
                     onColorChanged = { colorEnvelope ->
-                        colorVariable.value = colorEnvelope.hexCode
+                        currentColor.value = colorEnvelope.hexCode
                     }
                 )
                 AlphaSlider(
@@ -132,6 +133,7 @@ fun ColorPickerDialog(changingColor: MutableState<Boolean>, colorVariable: Mutab
                     TextButton(
                         onClick = {
                             changingColor.value = false
+                            colorVariable.value = currentColor.value
                         },
                         colors = ButtonDefaults.textButtonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
                         modifier = Modifier.padding(start = 8.dp)
