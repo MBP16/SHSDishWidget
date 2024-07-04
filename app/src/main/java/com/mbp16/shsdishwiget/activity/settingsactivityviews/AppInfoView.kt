@@ -10,24 +10,38 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
+import androidx.datastore.preferences.core.edit
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.mbp16.shsdishwiget.R
 import com.mbp16.shsdishwiget.activity.mainactivityviews.UpdateView
+import com.mbp16.shsdishwiget.activity.settingsactivityviews.MainActivitySettingDataStore.Companion.dataStore
 import com.mbp16.shsdishwiget.utils.Release
 import com.mbp16.shsdishwiget.utils.getUpdate
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppInfoView(activity: Activity) {
+    val dataStore = (LocalContext.current).dataStore
+    val coroutineScope = rememberCoroutineScope()
+
+    val updateAuto = remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        dataStore.data.collect() { preferences ->
+            updateAuto.value = preferences[MainActivitySettingDataStore.updateAuto] ?: true
+        }
+    }
+
     val dialogViewing = remember { mutableStateOf(false) }
     val result = remember { mutableStateOf(Release(tag_name = "", listOf(), "")) }
 
@@ -76,6 +90,26 @@ fun AppInfoView(activity: Activity) {
             },
         fontSize = MaterialTheme.typography.titleMedium.fontSize
     )
+    Divider()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .requiredHeight(64.dp)
+            .padding(20.dp)
+            .clickable { checkUpdate() },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = "업데이트 자동 확인", fontSize = MaterialTheme.typography.titleMedium.fontSize)
+        Switch(checked = updateAuto.value, onCheckedChange = {
+            updateAuto.value = it
+            coroutineScope.launch {
+                dataStore.edit { preferences ->
+                    preferences[MainActivitySettingDataStore.updateAuto] = it
+                }
+            }
+        })
+    }
     Divider()
     Row(
         modifier = Modifier

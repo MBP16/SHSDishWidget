@@ -11,10 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.mbp16.shsdishwiget.activity.ColorChangingRow
 import com.mbp16.shsdishwiget.activity.TextStyleChange
@@ -39,6 +36,8 @@ class MainActivitySettingDataStore {
         val mealColor = stringPreferencesKey("mealColor")
         val calorieColor = stringPreferencesKey("calorieColor")
         val todayColor = stringPreferencesKey("todayColor")
+
+        val updateAuto = booleanPreferencesKey("updateAuto")
     }
 }
 

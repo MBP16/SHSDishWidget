@@ -23,16 +23,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.mbp16.shsdishwiget.activity.SettingsActivity
-import com.mbp16.shsdishwiget.activity.settingsactivityviews.MainActivitySettingDataStore.Companion.dataStore
 import com.mbp16.shsdishwiget.utils.GetMealData
 import com.valentinilk.shimmer.shimmer
 import java.util.*
@@ -40,8 +40,7 @@ import kotlin.math.ceil
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MealView(activity: Activity) {
-    val dataStore = (LocalContext.current).dataStore
+fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
     val clipboardManager = activity.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
 
     val margin = remember { mutableIntStateOf(8) }
