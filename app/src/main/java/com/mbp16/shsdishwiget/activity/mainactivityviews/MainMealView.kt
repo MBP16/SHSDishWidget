@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.glance.action.actionStartActivity
 import com.mbp16.shsdishwiget.activity.SettingsActivity
 import com.mbp16.shsdishwiget.activity.settingsactivityviews.MainActivitySettingDataStore.Companion.dataStore
 import com.mbp16.shsdishwiget.utils.GetMealData
@@ -47,7 +46,7 @@ fun MealView(activity: Activity) {
 
     val margin = remember { mutableIntStateOf(8) }
     val fontSizeArray = remember { mutableStateListOf(32, 20, 18, 20) }
-    val colorArray = remember { mutableStateListOf("ff171b1e", "ffe2e3e5", "ffe4bebd", "ffe2e3e5", "ff8dcae7", "cc2df07b") }
+    val colorArray = remember { mutableStateListOf("ff171b1e", "ff4c5459", "ffe2e3e5", "ffe4bebd", "ffe2e3e5", "ff8dcae7", "cc2df07b") }
 
     val pickingDate = remember { mutableStateOf(false) }
     val viewingDateDelta = remember { mutableIntStateOf(0) }
@@ -122,11 +121,12 @@ fun MealView(activity: Activity) {
             fontSizeArray[2] = preferences[intPreferencesKey("mealFontSize")] ?: 18
             fontSizeArray[3] = preferences[intPreferencesKey("calorieFontSize")] ?: 20
             colorArray[0] = preferences[stringPreferencesKey("backgroundColor")] ?: "ff171b1e"
-            colorArray[1] = preferences[stringPreferencesKey("dateColor")] ?: "ffe2e3e5"
-            colorArray[2] = preferences[stringPreferencesKey("titleColor")] ?: "ffe4bebd"
-            colorArray[3] = preferences[stringPreferencesKey("mealColor")] ?: "ffe2e3e5"
-            colorArray[4] = preferences[stringPreferencesKey("calorieColor")] ?: "ff8dcae7"
-            colorArray[5] = preferences[stringPreferencesKey("todayColor")] ?: "cc2df07b"
+            colorArray[1] = preferences[stringPreferencesKey("cardColor")] ?: "ff4c5459"
+            colorArray[2] = preferences[stringPreferencesKey("dateColor")] ?: "ffe2e3e5"
+            colorArray[3] = preferences[stringPreferencesKey("titleColor")] ?: "ffe4bebd"
+            colorArray[4] = preferences[stringPreferencesKey("mealColor")] ?: "ffe2e3e5"
+            colorArray[5] = preferences[stringPreferencesKey("calorieColor")] ?: "ff8dcae7"
+            colorArray[6] = preferences[stringPreferencesKey("todayColor")] ?: "cc2df07b"
         }
     }
 
@@ -261,24 +261,27 @@ fun RowScope.MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeA
     ) {
         Text(
             text = "${day[0]}년 ${day[1]}월 ${day[2]}일", fontSize = fontSizeArray[0].sp,
-            color = (isToday).let { if (it) Color(parseColor("#${colorArray[5]}")) else Color(parseColor("#${colorArray[1]}")) },
+            color = (isToday).let { if (it) Color(parseColor("#${colorArray[6]}")) else Color(parseColor("#${colorArray[2]}")) },
             modifier = Modifier.padding(margin.dp).fillMaxWidth(), textAlign = TextAlign.Center
         )
         Column (modifier = Modifier.fillMaxWidth()) {
             for (i in dayMeal) {
                 if (i[0] == "Loading") {
-                    Card(modifier = Modifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().weight(1f).shimmer(), shape = MaterialTheme.shapes.medium) {
+                    Card(modifier = Modifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().weight(1f).shimmer(), shape = MaterialTheme.shapes.medium,
+                        colors = CardDefaults.cardColors(containerColor=Color(parseColor("#${colorArray[1]}")))
+                    )
+                    {
                         Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp).background(
-                            Color(parseColor("#${colorArray[2]}"))))
+                            Color(parseColor("#${colorArray[3]}"))))
                         for (j in 0..6) {
                             Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp).background(
-                                Color(parseColor("#${colorArray[3]}"))))
+                                Color(parseColor("#${colorArray[4]}"))))
                         }
                         Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp).background(
-                            Color(parseColor("#${colorArray[4]}"))))
+                            Color(parseColor("#${colorArray[5]}"))))
                     }
                 } else {
-                    Card(shape = MaterialTheme.shapes.medium,
+                    Card(shape = MaterialTheme.shapes.medium, colors = CardDefaults.cardColors(containerColor=Color(parseColor("#${colorArray[1]}"))),
                         modifier = Modifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().weight(1f).clickable {
                             clipboardManager.setPrimaryClip(ClipData.newPlainText("meal", i[1].replace(",", "\n").replace(" ", "")))
                             if (Build.VERSION.SDK_INT <= 32) {
@@ -286,11 +289,11 @@ fun RowScope.MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeA
                             }
                         }) {
                         Text(text = i[0], fontSize = fontSizeArray[1].sp,
-                            color = Color(parseColor("#${colorArray[2]}")), modifier = Modifier.padding(margin.dp))
-                        Text(text = i[1].replace(",", "\n").replace(" ", ""), fontSize = fontSizeArray[2].sp,
                             color = Color(parseColor("#${colorArray[3]}")), modifier = Modifier.padding(margin.dp))
+                        Text(text = i[1].replace(",", "\n").replace(" ", ""), fontSize = fontSizeArray[2].sp,
+                            color = Color(parseColor("#${colorArray[4]}")), modifier = Modifier.padding(margin.dp))
                         Text(text = i[2], fontSize = fontSizeArray[3].sp,
-                            color = Color(parseColor("#${colorArray[4]}")),
+                            color = Color(parseColor("#${colorArray[5]}")),
                             modifier = Modifier.padding(margin.dp), fontWeight = FontWeight.Bold)
                     }
                 }

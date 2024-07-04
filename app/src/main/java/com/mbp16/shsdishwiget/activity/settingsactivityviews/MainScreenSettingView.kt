@@ -33,6 +33,7 @@ class MainActivitySettingDataStore {
         val calorieFontSize = intPreferencesKey("calorieFontSize")
 
         val backgroundColor = stringPreferencesKey("backgroundColor")
+        val cardColor = stringPreferencesKey("cardColor")
         val dateColor = stringPreferencesKey("dateColor")
         val titleColor = stringPreferencesKey("titleColor")
         val mealColor = stringPreferencesKey("mealColor")
@@ -54,6 +55,7 @@ fun MainScreenSettingView(activity: Activity) {
     val calorieFontSize = remember { mutableIntStateOf(20) }
 
     val backgroundColor = remember { mutableStateOf("ff171b1e") }
+    val cardColor = remember { mutableStateOf("ff4c5459") }
     val dateColor = remember { mutableStateOf("ffe2e3e5") }
     val titleColor = remember { mutableStateOf("ffe4bebd") }
     val mealColor = remember { mutableStateOf("ffe2e3e5") }
@@ -70,6 +72,7 @@ fun MainScreenSettingView(activity: Activity) {
             calorieFontSize.intValue = preferences[MainActivitySettingDataStore.calorieFontSize] ?: 20
 
             backgroundColor.value = preferences[MainActivitySettingDataStore.backgroundColor] ?: "ff171b1e"
+            cardColor.value = preferences[MainActivitySettingDataStore.cardColor] ?: "ff4c5459"
             dateColor.value = preferences[MainActivitySettingDataStore.dateColor] ?: "ffe2e3e5"
             titleColor.value = preferences[MainActivitySettingDataStore.titleColor] ?: "ffe4bebd"
             mealColor.value = preferences[MainActivitySettingDataStore.mealColor] ?: "ffe2e3e5"
@@ -87,6 +90,7 @@ fun MainScreenSettingView(activity: Activity) {
                 preferences[MainActivitySettingDataStore.mealFontSize] = mealFontSize.intValue
                 preferences[MainActivitySettingDataStore.calorieFontSize] = calorieFontSize.intValue
                 preferences[MainActivitySettingDataStore.backgroundColor] = backgroundColor.value
+                preferences[MainActivitySettingDataStore.cardColor] = cardColor.value
                 preferences[MainActivitySettingDataStore.dateColor] = dateColor.value
                 preferences[MainActivitySettingDataStore.titleColor] = titleColor.value
                 preferences[MainActivitySettingDataStore.mealColor] = mealColor.value
@@ -136,6 +140,15 @@ fun MainScreenSettingView(activity: Activity) {
             )
         }
         ColorChangingRow(backgroundColor)
+    }
+    Divider()
+    Column {
+        Text(
+            text="카드 설정",
+            fontSize = MaterialTheme.typography.titleLarge.fontSize,
+            modifier = Modifier.padding(16.dp)
+        )
+        ColorChangingRow(cardColor)
     }
     Divider()
     TextStyleChange("날짜 표기 설정", dateFontSize, dateColor)
