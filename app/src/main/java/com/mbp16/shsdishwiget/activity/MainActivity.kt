@@ -60,14 +60,14 @@ class MainActivity : ComponentActivity() {
             setContent {
                 val dialogViewing = remember { mutableStateOf(false) }
                 var result: Any = false
-//                LaunchedEffect(Unit) {
-//                    val thread = Thread() {
-//                        result = getUpdate(this@MainActivity)
-//                        if (result != false) {dialogViewing.value = true}
-//                    }
-//                    thread.setUncaughtExceptionHandler { _, _ -> dialogViewing.value = false }
-//                    thread.start()
-//                }
+                LaunchedEffect(Unit) {
+                    val thread = Thread() {
+                        result = getUpdate(this@MainActivity)
+                        if (result != false) {dialogViewing.value = true}
+                    }
+                    thread.setUncaughtExceptionHandler { _, _ -> dialogViewing.value = false }
+                    thread.start()
+                }
                 SHSDishWigetTheme {
                     Surface(modifier = Modifier.fillMaxSize()) {
                         if (dialogViewing.value) {

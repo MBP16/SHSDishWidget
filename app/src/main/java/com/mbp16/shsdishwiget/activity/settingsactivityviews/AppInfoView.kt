@@ -8,7 +8,9 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,20 +21,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
+import com.mbp16.shsdishwiget.R
 import com.mbp16.shsdishwiget.activity.mainactivityviews.UpdateView
 import com.mbp16.shsdishwiget.utils.Release
 import com.mbp16.shsdishwiget.utils.getUpdate
-import com.mbp16.shsdishwiget.R
 
 @Composable
 fun AppInfoView(activity: Activity) {
     val dialogViewing = remember { mutableStateOf(false) }
-    var result: Any = false
+    val result = remember { mutableStateOf(Release(tag_name = "", listOf(), "")) }
 
     fun checkUpdate() {
         val thread = Thread() {
-            result = getUpdate(activity)
-            if (result != false) {
+            val requestResult = getUpdate(activity)
+            if (requestResult != false) {
+                result.value = requestResult as Release
                 dialogViewing.value = true
             } else {
                 object : Thread() {
@@ -49,7 +52,7 @@ fun AppInfoView(activity: Activity) {
     }
 
     if (dialogViewing.value) {
-        UpdateView(dialogViewing = dialogViewing, result = result as Release, activity = activity)
+        UpdateView(dialogViewing = dialogViewing, result = result.value, activity = activity)
     }
 
     Text(text = "앱 정보", modifier = Modifier
@@ -95,13 +98,23 @@ fun AppInfoView(activity: Activity) {
     ) {
         Image(painter = painterResource(id = R.drawable.github), contentDescription = "GITHUB",
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-            modifier = Modifier.size(32.dp).clickable {
-                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/MBP16")))
-            })
+            modifier = Modifier
+                .size(32.dp)
+                .clickable {
+                    activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/MBP16")))
+                })
         Image(painter = painterResource(id = R.drawable.discord), contentDescription = "DISCORD",
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-            modifier = Modifier.size(64.dp).padding(start = 16.dp).clickable {
-                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.com/users/783147071808471090")))
-            })
+            modifier = Modifier
+                .size(64.dp)
+                .padding(start = 16.dp)
+                .clickable {
+                    activity.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://discord.com/users/783147071808471090")
+                        )
+                    )
+                })
     }
 }
