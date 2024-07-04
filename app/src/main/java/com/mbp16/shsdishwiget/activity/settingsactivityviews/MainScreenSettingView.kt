@@ -81,6 +81,21 @@ fun MainScreenSettingView(activity: Activity) {
         }
     }
 
+    fun restoreData() {
+        margin.intValue = 8
+        dateFontSize.intValue = 32
+        titleFontSize.intValue = 20
+        mealFontSize.intValue = 18
+        calorieFontSize.intValue = 20
+        backgroundColor.value = "ff171b1e"
+        cardColor.value = "ff4c5459"
+        dateColor.value = "ffe2e3e5"
+        titleColor.value = "ffe4bebd"
+        mealColor.value = "ffe2e3e5"
+        calorieColor.value = "ff8dcae7"
+        todayColor.value = "cc2df07b"
+    }
+
     fun saveData() {
         coroutineScope.launch {
             dataStore.edit { preferences ->
@@ -169,6 +184,17 @@ fun MainScreenSettingView(activity: Activity) {
     }
     Row {
         Spacer(modifier = Modifier.weight(1f))
+        Button(
+            onClick = {
+                restoreData()
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            modifier = Modifier.padding(16.dp),
+        ) {
+            Text("초기화")
+        }
         Button(
             onClick = {
                 saveData()

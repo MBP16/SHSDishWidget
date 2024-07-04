@@ -12,7 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -88,6 +88,20 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
         }
     }
 
+    fun restoreData() {
+        showNextWeekChecked.value = false
+        margin.intValue = 8
+        dateFontSize.intValue = 24
+        titleFontSize.intValue = 20
+        mealFontSize.intValue = 14
+        calorieFontSize.intValue = 16
+        backgroundColor.value = "ff171b1e"
+        dateColor.value = "ffe2e3e5"
+        titleColor.value = "ffe4bebd"
+        mealColor.value = "ffe2e3e5"
+        calorieColor.value = "ff8dcae7"
+    }
+
     fun saveData() {
         val resultValue = Intent()
         coroutineScope.launch {
@@ -115,7 +129,9 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())) {
         Column() {
             Text(
                 text = "전체 설정",
@@ -123,7 +139,9 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
                 modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp)
             )
             Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -139,7 +157,9 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
                 )
             }
             Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp, 0.dp, 16.dp, 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp, 0.dp, 16.dp, 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -154,7 +174,9 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
                     },
                     valueRange = 0.0F..32.0F,
                     steps = 33,
-                    modifier = Modifier.weight(1f).padding(horizontal = 16.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp)
                 )
                 Text(
                     text = margin.intValue.toString(),
@@ -177,14 +199,21 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomEnd
     ) {
-        FloatingActionButton(
-            onClick = {
-                saveData()
-            },
-            containerColor = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(16.dp),
-        ) {
-            Icon(imageVector = Icons.Outlined.Check, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
+        Row {
+            FloatingActionButton(
+                onClick = { restoreData() },
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(16.dp, 16.dp, 0.dp, 16.dp),
+            ) {
+                Icon(imageVector = Icons.Outlined.Refresh, contentDescription = null)
+            }
+            FloatingActionButton(
+                onClick = { saveData() },
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(16.dp),
+            ) {
+                Icon(imageVector = Icons.Outlined.Check, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
+            }
         }
     }
 }
