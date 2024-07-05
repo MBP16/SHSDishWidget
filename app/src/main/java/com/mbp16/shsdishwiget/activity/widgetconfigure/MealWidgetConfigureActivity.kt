@@ -150,7 +150,7 @@ fun MealWidgetConfigureScreen(activity: Activity) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "점심 변경 시간",
+                    text = "다음날 점심으로 변경되는 시간",
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
                 Slider(
@@ -178,7 +178,7 @@ fun MealWidgetConfigureScreen(activity: Activity) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "저녁 변경 시간",
+                    text = "저녁으로 변경되는 시간",
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
                 Slider(
