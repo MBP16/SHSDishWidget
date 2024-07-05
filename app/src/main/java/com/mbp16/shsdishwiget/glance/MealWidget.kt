@@ -67,6 +67,13 @@ class MealWidget : GlanceAppWidget() {
             todayMeal.clear()
             todayMeal.addAll(arrayListOf("Loading", "Loading", "Loading"))
             val calendar = Calendar.getInstance()
+            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+            var mealType = 0
+            if (currentHour in changeDinner..<changeLunch) { mealType = 1 }
+            else if (currentHour > changeLunch) {
+                mealType = 0
+                calendar.add(Calendar.DAY_OF_MONTH, 1)
+            } else { mealType = 0 }
             today.clear()
             today.addAll(
                 arrayListOf(
@@ -75,8 +82,6 @@ class MealWidget : GlanceAppWidget() {
                     calendar.get(Calendar.DAY_OF_MONTH)
                 )
             )
-            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-            val mealType = if (currentHour in changeDinner..<changeLunch) 1 else 0
             fun threadExceptionHandler() {
                 todayMeal.clear()
                 todayMeal.addAll(arrayListOf("Error", "Error", "Error"))
