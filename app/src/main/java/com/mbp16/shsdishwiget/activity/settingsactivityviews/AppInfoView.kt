@@ -61,7 +61,7 @@ fun AppInfoView(activity: Activity) {
                 }.start()
             }
         }
-        thread.setUncaughtExceptionHandler { _, _ -> dialogViewing.value = false }
+        thread.setUncaughtExceptionHandler { _, _ -> dialogViewing.value = false}
         thread.start()
     }
 
@@ -135,7 +135,12 @@ fun AppInfoView(activity: Activity) {
             modifier = Modifier
                 .size(32.dp)
                 .clickable {
-                    activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/MBP16")))
+                    activity.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://github.com/MBP16/SHSDishWidget")
+                        )
+                    )
                 })
         Image(painter = painterResource(id = R.drawable.discord), contentDescription = "DISCORD",
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),

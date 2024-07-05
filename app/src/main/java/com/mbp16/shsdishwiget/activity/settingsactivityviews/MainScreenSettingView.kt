@@ -3,6 +3,9 @@ package com.mbp16.shsdishwiget.activity.settingsactivityviews
 import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Done
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -183,27 +186,23 @@ fun MainScreenSettingView(activity: Activity) {
     }
     Row {
         Spacer(modifier = Modifier.weight(1f))
-        Button(
+        FloatingActionButton(
             onClick = {
                 restoreData()
             },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            ),
-            modifier = Modifier.padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(16.dp, 16.dp, 0.dp, 16.dp),
         ) {
-            Text("초기화")
+            Icon(imageVector = Icons.Outlined.Refresh, contentDescription ="초기화")
         }
-        Button(
+        FloatingActionButton(
             onClick = {
                 saveData()
             },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            ),
+            containerColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(16.dp),
         ) {
-            Text("저장")
+            Icon(imageVector = Icons.Outlined.Done, contentDescription ="저장")
         }
     }
 }

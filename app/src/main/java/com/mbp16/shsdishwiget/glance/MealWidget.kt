@@ -44,8 +44,8 @@ class MealWidget : GlanceAppWidget() {
 
         val prefs = currentState<Preferences>()
 
-        val changeLunch = prefs[intPreferencesKey("changeLunch")] ?: 18
-        val changeDinner = prefs[intPreferencesKey("changeDinner")] ?: 13
+        val changeLunch = prefs[intPreferencesKey("changeLunch")] ?: 1800
+        val changeDinner = prefs[intPreferencesKey("changeDinner")] ?: 1300
 
         val margin = prefs[intPreferencesKey("margin")] ?: 8
 
@@ -67,10 +67,10 @@ class MealWidget : GlanceAppWidget() {
             todayMeal.clear()
             todayMeal.addAll(arrayListOf("Loading", "Loading", "Loading"))
             val calendar = Calendar.getInstance()
-            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-            var mealType = 0
-            if (currentHour in changeDinner..<changeLunch) { mealType = 1 }
-            else if (currentHour > changeLunch) {
+            val currentTime = calendar.get(Calendar.HOUR_OF_DAY)*100+calendar.get(Calendar.MINUTE)
+            val mealType: Int
+            if (currentTime in changeDinner..<changeLunch) { mealType = 1 }
+            else if (currentTime >= changeLunch) {
                 mealType = 0
                 calendar.add(Calendar.DAY_OF_MONTH, 1)
             } else { mealType = 0 }

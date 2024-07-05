@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -194,6 +194,7 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
         TextStyleChange("급식 표기 설정", mealFontSize, mealColor)
         Divider()
         TextStyleChange("칼로리 표기 설정", calorieFontSize, calorieColor)
+        Column(modifier = Modifier.fillMaxWidth().requiredHeight(72.dp)) {}
     }
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -202,7 +203,7 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
         Row {
             FloatingActionButton(
                 onClick = { restoreData() },
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(16.dp, 16.dp, 0.dp, 16.dp),
             ) {
                 Icon(imageVector = Icons.Outlined.Refresh, contentDescription = null)
@@ -212,7 +213,7 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
                 containerColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(16.dp),
             ) {
-                Icon(imageVector = Icons.Outlined.Check, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
+                Icon(imageVector = Icons.Outlined.Done, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
             }
         }
     }

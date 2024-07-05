@@ -9,9 +9,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -49,8 +52,8 @@ class MealWidgetConfigureActivity : ComponentActivity() {
 fun MealWidgetConfigureScreen(activity: Activity) {
     val margin = remember { mutableIntStateOf(8) }
 
-    val changeLunch = remember { mutableIntStateOf(13) }
-    val changeDinner = remember { mutableIntStateOf(18) }
+    val changeLunch = remember { mutableIntStateOf(1800) }
+    val changeDinner = remember { mutableIntStateOf(1300) }
 
     val dateFontSize = remember { mutableIntStateOf(28) }
     val titleFontSize = remember { mutableIntStateOf(20) }
@@ -62,6 +65,9 @@ fun MealWidgetConfigureScreen(activity: Activity) {
     val titleColor = remember { mutableStateOf("ffe4bebd") }
     val mealColor = remember { mutableStateOf("ffe2e3e5") }
     val calorieColor = remember { mutableStateOf("ff8dcae7") }
+
+    val viewingDialog = remember { mutableStateOf("") }
+    val viewingError = remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
     val appWidgetId = activity.intent?.extras?.getInt(
@@ -75,8 +81,8 @@ fun MealWidgetConfigureScreen(activity: Activity) {
         CoroutineScope(coroutineContext).launch {
             MealWidget().getAppWidgetState<Preferences>(activity, glanceId).let {
                 margin.intValue = it[intPreferencesKey("margin")] ?: 8
-                changeLunch.intValue = it[intPreferencesKey("changeLunch")] ?: 18
-                changeDinner.intValue = it[intPreferencesKey("changeDinner")] ?: 13
+                changeLunch.intValue = it[intPreferencesKey("changeLunch")] ?: 1800
+                changeDinner.intValue = it[intPreferencesKey("changeDinner")] ?: 1300
                 dateFontSize.intValue = it[intPreferencesKey("dateFontSize")] ?: 28
                 titleFontSize.intValue = it[intPreferencesKey("titleFontSize")] ?: 20
                 mealFontSize.intValue = it[intPreferencesKey("mealFontSize")] ?: 18
@@ -92,8 +98,8 @@ fun MealWidgetConfigureScreen(activity: Activity) {
 
     fun restoreData() {
         margin.intValue = 8
-        changeLunch.intValue = 18
-        changeDinner.intValue = 13
+        changeLunch.intValue = 1800
+        changeDinner.intValue = 1300
         dateFontSize.intValue = 28
         titleFontSize.intValue = 20
         mealFontSize.intValue = 18
@@ -106,6 +112,10 @@ fun MealWidgetConfigureScreen(activity: Activity) {
     }
 
     fun saveData() {
+        if (changeLunch.intValue <= changeDinner.intValue) {
+            viewingError.value = true
+            return
+        }
         val resultValue = Intent()
         coroutineScope.launch {
             try {
@@ -133,6 +143,42 @@ fun MealWidgetConfigureScreen(activity: Activity) {
         }
     }
 
+    fun formattingTime(time: Int): String {
+        val hour = time / 100
+        val min = String.format("%02d", time % 100)
+        if (hour == 0) {
+            return "오전 12:${time % 100}"
+        } else if (hour < 12) {
+            return "오전 $hour:$min"
+        } else if (hour == 12) {
+            return "오후 12:$min"
+        } else {
+            return "오후 ${hour - 12}:$min"
+        }
+    }
+
+    if (viewingDialog.value == "changeLunch") {
+        TimeDialog(viewingDialog, changeLunch)
+    } else if (viewingDialog.value == "changeDinner") {
+        TimeDialog(viewingDialog, changeDinner)
+    }
+
+    if (viewingError.value) {
+        AlertDialog(
+            onDismissRequest = { viewingError.value = false },
+            title = { Text("오류 발생") },
+            text = { Text("다음 날 점심으로의 변경 시간이 저녁으로의 변경 시간보다 빠를 수 없습니다.") },
+            confirmButton = {
+                Button(
+                    onClick = { viewingError.value = false }
+                ) {
+                    Text("확인")
+                }
+            },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        )
+    }
+
     Column(modifier = Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())) {
@@ -153,22 +199,12 @@ fun MealWidgetConfigureScreen(activity: Activity) {
                     text = "다음날 점심으로 변경되는 시간",
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
-                Slider(
-                    value = changeLunch.intValue.toFloat(),
-                    onValueChange = {
-                        changeLunch.intValue = it.toInt()
-                    },
-                    valueRange = 16.0F..24.0F,
-                    steps = 7,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp)
-                )
-                Text(
-                    text = changeLunch.intValue.toString(),
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                    textAlign = TextAlign.Center
-                )
+                Button(onClick = { viewingDialog.value = "changeLunch" }) {
+                    Text(
+                        text = formattingTime(changeLunch.intValue),
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize
+                    )
+                }
             }
             Row(
                 modifier = Modifier
@@ -181,22 +217,12 @@ fun MealWidgetConfigureScreen(activity: Activity) {
                     text = "저녁으로 변경되는 시간",
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
-                Slider(
-                    value = changeDinner.intValue.toFloat(),
-                    onValueChange = {
-                        changeDinner.intValue = it.toInt()
-                    },
-                    valueRange = 0.0F..15.0F,
-                    steps = 14,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp)
-                )
-                Text(
-                    text = changeDinner.intValue.toString(),
-                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                    textAlign = TextAlign.Center
-                )
+                Button(onClick = { viewingDialog.value = "changeDinner" }) {
+                    Text(
+                        text = formattingTime(changeDinner.intValue),
+                        fontSize = MaterialTheme.typography.titleMedium.fontSize
+                    )
+                }
             }
             Row(
                 modifier = Modifier
@@ -236,6 +262,7 @@ fun MealWidgetConfigureScreen(activity: Activity) {
         TextStyleChange("급식 표기 설정", mealFontSize, mealColor)
         Divider()
         TextStyleChange("칼로리 표기 설정", calorieFontSize, calorieColor)
+        Column(modifier = Modifier.fillMaxWidth().requiredHeight(72.dp)) {}
     }
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -244,7 +271,7 @@ fun MealWidgetConfigureScreen(activity: Activity) {
         Row {
             FloatingActionButton(
                 onClick = { restoreData() },
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(16.dp, 16.dp, 0.dp, 16.dp),
             ) {
                 Icon(imageVector = Icons.Outlined.Refresh, contentDescription = null)
@@ -254,7 +281,40 @@ fun MealWidgetConfigureScreen(activity: Activity) {
                 containerColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(16.dp),
             ) {
-                Icon(imageVector = Icons.Outlined.Check, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
+                Icon(imageVector = Icons.Outlined.Done, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimeDialog(viewingDialog: MutableState<String>, time: MutableIntState) {
+    val timePickerState = rememberTimePickerState(
+        initialHour = time.intValue / 100,
+        initialMinute = time.intValue % 100
+    )
+
+    Dialog(
+        onDismissRequest = { viewingDialog.value = "" },
+    ) {
+        Card(shape = RoundedCornerShape(8.dp)) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                TimePicker(
+                    state = timePickerState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Button(
+                    onClick = {
+                        time.intValue = timePickerState.hour * 100 + timePickerState.minute
+                        viewingDialog.value = ""
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("확인")
+                }
             }
         }
     }
