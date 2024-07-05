@@ -291,7 +291,8 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
             .padding(margin.dp)
             .fillMaxWidth(), textAlign = TextAlign.Center
     )
-    val loading: @Composable () -> Unit = {
+    @Composable
+    fun loading(){
         Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp)
             .background(Color(parseColor("#${colorArray[3]}"))))
         for (j in 0..6) {
@@ -301,12 +302,13 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
         Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp)
             .background(Color(parseColor("#${colorArray[5]}"))))
     }
-    val content: @Composable () -> Unit = {
-        Text(text = dayMeal[0][0], fontSize = fontSizeArray[1].sp, fontWeight = FontWeight.Bold,
+    @Composable
+    fun content(meal: ArrayList<String>) {
+        Text(text = meal[0], fontSize = fontSizeArray[1].sp, fontWeight = FontWeight.Bold,
             color = Color(parseColor("#${colorArray[3]}")), modifier = Modifier.padding(margin.dp))
-        Text(text = dayMeal[0][1].replace(",", "\n").replace(" ", ""), fontSize = fontSizeArray[2].sp,
+        Text(text = meal[1].replace(",", "\n").replace(" ", ""), fontSize = fontSizeArray[2].sp,
             color = Color(parseColor("#${colorArray[4]}")), modifier = Modifier.padding(margin.dp), fontWeight = FontWeight.Bold)
-        Text(text = dayMeal[0][2], fontSize = fontSizeArray[3].sp,
+        Text(text = meal[2], fontSize = fontSizeArray[3].sp,
             color = Color(parseColor("#${colorArray[5]}")),
             modifier = Modifier.padding(margin.dp), fontWeight = FontWeight.Bold)
     }
@@ -323,7 +325,7 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
                             .clickable {
                                 clipboardManager.setPrimaryClip(ClipData.newPlainText("meal", i[1].replace(",", "\n").replace(" ", "")))
                                 if (Build.VERSION.SDK_INT <= 32) { Toast.makeText(activity, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT).show() }
-                            }) { content() }
+                            }) { content(i) }
                 }
             }
         }
@@ -341,7 +343,7 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
                                 clipboardManager.setPrimaryClip(ClipData.newPlainText("meal",
                                     i[1].replace(",", "\n").replace(" ", "")))
                                 if (Build.VERSION.SDK_INT <= 32) { Toast.makeText(activity, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT).show() }
-                            }) { content() }
+                            }) { content(i) }
                 }
             }
         }
