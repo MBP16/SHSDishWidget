@@ -140,7 +140,7 @@ fun MealWidgetConfigureScreen(activity: Activity) {
             Text(
                 text = "전체 설정",
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp)
+                modifier = Modifier.padding(16.dp)
             )
             Row(
                 modifier = Modifier
