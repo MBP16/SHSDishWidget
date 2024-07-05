@@ -159,7 +159,7 @@ fun MealWidgetConfigureScreen(activity: Activity) {
                         changeLunch.intValue = it.toInt()
                     },
                     valueRange = 16.0F..24.0F,
-                    steps = 9,
+                    steps = 7,
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp)
@@ -187,7 +187,7 @@ fun MealWidgetConfigureScreen(activity: Activity) {
                         changeDinner.intValue = it.toInt()
                     },
                     valueRange = 0.0F..15.0F,
-                    steps = 9,
+                    steps = 14,
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp)
