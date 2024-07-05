@@ -49,6 +49,9 @@ class MealWidgetConfigureActivity : ComponentActivity() {
 fun MealWidgetConfigureScreen(activity: Activity) {
     val margin = remember { mutableIntStateOf(8) }
 
+    val changeLunch = remember { mutableIntStateOf(13) }
+    val changeDinner = remember { mutableIntStateOf(18) }
+
     val dateFontSize = remember { mutableIntStateOf(28) }
     val titleFontSize = remember { mutableIntStateOf(20) }
     val mealFontSize = remember { mutableIntStateOf(18) }
@@ -72,6 +75,8 @@ fun MealWidgetConfigureScreen(activity: Activity) {
         CoroutineScope(coroutineContext).launch {
             MealWidget().getAppWidgetState<Preferences>(activity, glanceId).let {
                 margin.intValue = it[intPreferencesKey("margin")] ?: 8
+                changeLunch.intValue = it[intPreferencesKey("changeLunch")] ?: 18
+                changeDinner.intValue = it[intPreferencesKey("changeDinner")] ?: 13
                 dateFontSize.intValue = it[intPreferencesKey("dateFontSize")] ?: 28
                 titleFontSize.intValue = it[intPreferencesKey("titleFontSize")] ?: 20
                 mealFontSize.intValue = it[intPreferencesKey("mealFontSize")] ?: 18
@@ -87,6 +92,8 @@ fun MealWidgetConfigureScreen(activity: Activity) {
 
     fun restoreData() {
         margin.intValue = 8
+        changeLunch.intValue = 18
+        changeDinner.intValue = 13
         dateFontSize.intValue = 28
         titleFontSize.intValue = 20
         mealFontSize.intValue = 18
@@ -104,6 +111,8 @@ fun MealWidgetConfigureScreen(activity: Activity) {
             try {
                 updateAppWidgetState(activity, glanceId) {
                     it[intPreferencesKey("margin")] = margin.intValue
+                    it[intPreferencesKey("changeLunch")] = changeLunch.intValue
+                    it[intPreferencesKey("changeDinner")] = changeDinner.intValue
                     it[intPreferencesKey("dateFontSize")] = dateFontSize.intValue
                     it[intPreferencesKey("titleFontSize")] = titleFontSize.intValue
                     it[intPreferencesKey("mealFontSize")] = mealFontSize.intValue
@@ -141,6 +150,62 @@ fun MealWidgetConfigureScreen(activity: Activity) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
+                    text = "점심 변경 시간",
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize
+                )
+                Slider(
+                    value = changeLunch.intValue.toFloat(),
+                    onValueChange = {
+                        changeLunch.intValue = it.toInt()
+                    },
+                    valueRange = 16.0F..24.0F,
+                    steps = 9,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp)
+                )
+                Text(
+                    text = changeLunch.intValue.toString(),
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                    textAlign = TextAlign.Center
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "저녁 변경 시간",
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize
+                )
+                Slider(
+                    value = changeDinner.intValue.toFloat(),
+                    onValueChange = {
+                        changeDinner.intValue = it.toInt()
+                    },
+                    valueRange = 0.0F..15.0F,
+                    steps = 9,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp)
+                )
+                Text(
+                    text = changeDinner.intValue.toString(),
+                    fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                    textAlign = TextAlign.Center
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
                     text="여백",
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 )
@@ -150,7 +215,7 @@ fun MealWidgetConfigureScreen(activity: Activity) {
                         margin.intValue = it.toInt()
                     },
                     valueRange = 0.0F..32.0F,
-                    steps = 33,
+                    steps = 31,
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp)

@@ -43,6 +43,10 @@ class MealWidget : GlanceAppWidget() {
         val errorOcurred = remember { mutableStateOf(false) }
 
         val prefs = currentState<Preferences>()
+
+        val changeLunch = prefs[intPreferencesKey("changeLunch")] ?: 18
+        val changeDinner = prefs[intPreferencesKey("changeDinner")] ?: 13
+
         val margin = prefs[intPreferencesKey("margin")] ?: 8
 
         val dateFontSize = prefs[intPreferencesKey("dateFontSize")] ?: 28
@@ -59,6 +63,7 @@ class MealWidget : GlanceAppWidget() {
         val todayMeal = remember { mutableStateListOf("Loading", "Loading", "Loading") }
         val today = remember { mutableStateListOf(0, 0, 0) }
         fun updateInfo() {
+            errorOcurred.value = true
             todayMeal.clear()
             todayMeal.addAll(arrayListOf("Loading", "Loading", "Loading"))
             val calendar = Calendar.getInstance()
@@ -70,10 +75,9 @@ class MealWidget : GlanceAppWidget() {
                     calendar.get(Calendar.DAY_OF_MONTH)
                 )
             )
-            var mealType = 0
-            if (calendar.get(Calendar.HOUR_OF_DAY) >= 13) mealType = 1
+            val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
+            val mealType = if (currentHour in changeDinner..<changeLunch) 1 else 0
             fun threadExceptionHandler() {
-                errorOcurred.value = true
                 todayMeal.clear()
                 todayMeal.addAll(arrayListOf("Error", "Error", "Error"))
             }
@@ -81,6 +85,7 @@ class MealWidget : GlanceAppWidget() {
                 val data = GetMealSignleWidget(today[0], today[1], today[2], mealType)
                 todayMeal.clear()
                 todayMeal.addAll(data)
+                errorOcurred.value = false
             }
             thread.setUncaughtExceptionHandler { _, _ -> threadExceptionHandler() }
             thread.start()
@@ -125,7 +130,6 @@ class MealWidget : GlanceAppWidget() {
                 Button(
                     text = "↺",
                     onClick = {
-                        errorOcurred.value = false
                         updateInfo()
                     },
                     colors = ButtonDefaults.buttonColors(

@@ -38,7 +38,7 @@ fun TextStyleChange(name: String, fontSizeVariable: MutableIntState, colorVariab
                     fontSizeVariable.intValue = it.toInt()
                 },
                 valueRange = 0.0F..32.0F,
-                steps = 33,
+                steps = 31,
                 modifier = Modifier.weight(1f).padding(horizontal = 16.dp)
             )
             Text(

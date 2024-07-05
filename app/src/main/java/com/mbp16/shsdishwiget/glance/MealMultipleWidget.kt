@@ -51,6 +51,7 @@ class MealMultipleWidget : GlanceAppWidget() {
         val mealData = remember { mutableStateListOf<ArrayList<ArrayList<String>>>()}
         val week = remember { mutableStateListOf<ArrayList<Number>>() }
         fun setWeek() {
+            errorOcurred.value = true
             week.clear()
             mealData.clear()
             for (i in 2..6) {
@@ -71,7 +72,6 @@ class MealMultipleWidget : GlanceAppWidget() {
         }
         fun updateData() {
             fun threadExceptionHandler() {
-                errorOcurred.value = true
                 mealData.clear()
                 for (i in 2..6) {
                     mealData.add(
@@ -87,6 +87,7 @@ class MealMultipleWidget : GlanceAppWidget() {
                     val data = GetMealData(ArrayList(week))
                     mealData.clear()
                     mealData.addAll(data)
+                    errorOcurred.value = false
                 }.run()
             }
             thread.setUncaughtExceptionHandler { _, _ -> threadExceptionHandler() }
@@ -112,7 +113,6 @@ class MealMultipleWidget : GlanceAppWidget() {
                 Button(
                     text = "↺",
                     onClick = {
-                        errorOcurred.value = false
                         setWeek()
                         updateData()
                     },
