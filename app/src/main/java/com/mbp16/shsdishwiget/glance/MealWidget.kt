@@ -2,7 +2,10 @@ package com.mbp16.shsdishwiget.glance
 
 import android.content.Context
 import android.graphics.Color.parseColor
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,8 +43,6 @@ class MealWidget : GlanceAppWidget() {
 
     @Composable
     private fun WidgetContent() {
-        val errorOcurred = remember { mutableStateOf(false) }
-
         val prefs = currentState<Preferences>()
 
         val changeLunch = prefs[intPreferencesKey("changeLunch")] ?: 1800
@@ -63,7 +64,6 @@ class MealWidget : GlanceAppWidget() {
         val todayMeal = remember { mutableStateListOf("Loading", "Loading", "Loading") }
         val today = remember { mutableStateListOf(0, 0, 0) }
         fun updateInfo() {
-            errorOcurred.value = true
             todayMeal.clear()
             todayMeal.addAll(arrayListOf("Loading", "Loading", "Loading"))
             val calendar = Calendar.getInstance()
@@ -90,7 +90,6 @@ class MealWidget : GlanceAppWidget() {
                 val data = GetMealSignleWidget(today[0], today[1], today[2], mealType)
                 todayMeal.clear()
                 todayMeal.addAll(data)
-                errorOcurred.value = false
             }
             thread.setUncaughtExceptionHandler { _, _ -> threadExceptionHandler() }
             thread.start()
@@ -127,23 +126,21 @@ class MealWidget : GlanceAppWidget() {
                  modifier = GlanceModifier.padding(margin.dp)
             )
         }
-        if (errorOcurred.value) {
-            Box(
-                modifier = GlanceModifier.fillMaxSize().padding(margin.dp),
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                Button(
-                    text = "↺",
-                    onClick = {
-                        updateInfo()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = ColorProvider(Color(parseColor("#$backgroundColor"))),
-                        contentColor = ColorProvider(Color(parseColor("#ffe4bebd")))
-                    ),
-                    modifier = GlanceModifier.padding(8.dp).width(50.dp).height(50.dp)
-                )
-            }
+        Box(
+            modifier = GlanceModifier.fillMaxSize().padding(margin.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Button(
+                text = "↺",
+                onClick = {
+                    updateInfo()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = ColorProvider(Color(parseColor("#$backgroundColor"))),
+                    contentColor = ColorProvider(Color(parseColor("#ffe4bebd")))
+                ),
+                modifier = GlanceModifier.padding(8.dp).width(50.dp).height(50.dp)
+            )
         }
     }
 }

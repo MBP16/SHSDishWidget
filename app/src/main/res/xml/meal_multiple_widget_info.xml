@@ -2,11 +2,11 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
                     android:minWidth="460dp"
                     android:minHeight="270dp"
-                    android:updatePeriodMillis="86400000"
+                    android:updatePeriodMillis="1800000"
                     android:previewImage="@drawable/meal_multiple_widget_preview"
                     android:initialLayout="@layout/glance_default_loading_layout"
                     android:description="@string/app_widget_description"
                     android:resizeMode="horizontal|vertical"
                     android:widgetCategory="home_screen"
-                    android:widgetFeatures="reconfigurable"
+                    android:widgetFeatures="reconfigurable | configuration_optional"
                     android:configure="com.mbp16.shsdishwiget.activity.widgetconfigure.MealMultipleWidgetConfigureActivity"/>
