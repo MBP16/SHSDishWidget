@@ -24,7 +24,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.mbp16.shsdishwiget.activity.MainActivity
-import com.mbp16.shsdishwiget.utils.GetMealData
+import com.mbp16.shsdishwiget.utils.getMeals
 import java.util.*
 
 class MealMultipleWidget : GlanceAppWidget() {
@@ -32,7 +32,7 @@ class MealMultipleWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             GlanceTheme {
-                WidgetContent()
+                WidgetContent(context)
             }
         }
     }
@@ -40,7 +40,7 @@ class MealMultipleWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
 
     @Composable
-    private fun WidgetContent() {
+    private fun WidgetContent(context: Context) {
         val errorOcurred = remember { mutableStateOf(false) }
 
         val prefs = currentState<Preferences>()
@@ -49,7 +49,7 @@ class MealMultipleWidget : GlanceAppWidget() {
 
         val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
         val mealData = remember { mutableStateListOf<ArrayList<ArrayList<String>>>()}
-        val week = remember { mutableStateListOf<ArrayList<Number>>() }
+        val week = remember { mutableStateListOf<ArrayList<Int>>() }
         fun setWeek() {
             errorOcurred.value = true
             week.clear()
@@ -84,7 +84,7 @@ class MealMultipleWidget : GlanceAppWidget() {
             }
             val thread = Thread {
                 Runnable {
-                    val data = GetMealData(ArrayList(week))
+                    val data = getMeals(ArrayList(week), context)
                     mealData.clear()
                     mealData.addAll(data)
                     errorOcurred.value = false
@@ -127,7 +127,7 @@ class MealMultipleWidget : GlanceAppWidget() {
     }
 
     @Composable
-    fun RowScope.MealCard(day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<String>>) {
+    fun RowScope.MealCard(day: ArrayList<Int>, dayMeal: ArrayList<ArrayList<String>>) {
         val prefs = currentState<Preferences>()
         val margin = prefs[intPreferencesKey("margin")] ?: 8
 

@@ -37,7 +37,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.mbp16.shsdishwiget.activity.SettingsActivity
-import com.mbp16.shsdishwiget.utils.GetMealData
+import com.mbp16.shsdishwiget.utils.getMeals
 import com.valentinilk.shimmer.shimmer
 import java.util.*
 import kotlin.math.ceil
@@ -58,7 +58,7 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
     val viewingDateDelta = remember { mutableIntStateOf(0) }
     val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
     val mealData = remember { mutableStateListOf(arrayListOf(arrayListOf("Loading", "Loading", "Loading"))) }
-    val week = remember { mutableStateListOf<ArrayList<Number>>(arrayListOf(0, 0, 0)) }
+    val week = remember { mutableStateListOf<ArrayList<Int>>(arrayListOf(0, 0, 0)) }
 
     fun updateData() {
         fun exceptionHandler() {
@@ -84,7 +84,7 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
         }
         val thread = Thread {
             Runnable {
-                val data = GetMealData(ArrayList(week))
+                val data = getMeals(ArrayList(week), activity)
                 mealData.clear()
                 mealData.addAll(data)
             }.run()
@@ -93,7 +93,7 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
         thread.start()
     }
     fun setWeek() {
-        val newWeek = ArrayList<ArrayList<Number>>()
+        val newWeek = ArrayList<ArrayList<Int>>()
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DATE, viewingDateDelta.intValue)
         val viewingWeekDay = calendar.get(Calendar.DAY_OF_WEEK)
@@ -282,7 +282,7 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
 
 @Composable
 fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: SnapshotStateList<Int>,
-             colorArray: SnapshotStateList<String>, day: ArrayList<Number>, dayMeal: ArrayList<ArrayList<String>>,
+             colorArray: SnapshotStateList<String>, day: ArrayList<Int>, dayMeal: ArrayList<ArrayList<String>>,
              isToday: Boolean, activity: Activity, portrait: Boolean = false)  {
     Text(
         text = "${day[0]}년 ${day[1]}월 ${day[2]}일", fontSize = fontSizeArray[0].sp, fontWeight = FontWeight.Bold,

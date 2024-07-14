@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.android.gms.oss-licenses-plugin")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -66,6 +67,9 @@ dependencies {
     implementation("com.valentinilk.shimmer:compose-shimmer:1.3.0")
     implementation("com.github.skydoves:colorpicker-compose:1.1.1")
     implementation("androidx.datastore:datastore-core-android:1.1.1")
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")

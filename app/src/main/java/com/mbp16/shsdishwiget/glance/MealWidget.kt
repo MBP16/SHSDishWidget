@@ -26,7 +26,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.mbp16.shsdishwiget.activity.MainActivity
-import com.mbp16.shsdishwiget.utils.GetMealSignleWidget
+import com.mbp16.shsdishwiget.utils.getMealSignleWidget
 import java.util.*
 
 class MealWidget : GlanceAppWidget() {
@@ -36,13 +36,13 @@ class MealWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             GlanceTheme {
-                WidgetContent()
+                WidgetContent(context)
             }
         }
     }
 
     @Composable
-    private fun WidgetContent() {
+    private fun WidgetContent(context: Context) {
         val prefs = currentState<Preferences>()
 
         val changeLunch = prefs[intPreferencesKey("changeLunch")] ?: 1800
@@ -87,7 +87,7 @@ class MealWidget : GlanceAppWidget() {
                 todayMeal.addAll(arrayListOf("Error", "Error", "Error"))
             }
             val thread = Thread {
-                val data = GetMealSignleWidget(today[0], today[1], today[2], mealType)
+                val data = getMealSignleWidget(today[0], today[1], today[2], mealType, context)
                 todayMeal.clear()
                 todayMeal.addAll(data)
             }
