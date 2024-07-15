@@ -15,11 +15,23 @@ interface MealDataDao {
     @Query("SELECT * FROM MealData WHERE dateType IN (:dates)")
     fun getByDateTypes(dates: List<String>): List<MealData>
 
+    @Query("SELECT * FROM MealData")
+    fun getAll(): List<MealData>
+
+    @Query("SELECT COUNT(*) FROM MealData")
+    fun getCount(): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg mealData: MealData)
+
+    @Query("DELETE FROM MealData WHERE dateType = :dateType")
+    fun delete(dateType: String)
+
+    @Query("DELETE FROM MealData")
+    fun deleteAll()
 }
 
 @Database(entities = [MealData::class], version = 1, exportSchema = false)
-abstract class AppDatabase : RoomDatabase() {
+abstract class MealDatabase : RoomDatabase() {
     abstract fun mealDataDao(): MealDataDao
 }

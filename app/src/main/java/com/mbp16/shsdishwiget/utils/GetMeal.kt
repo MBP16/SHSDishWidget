@@ -23,9 +23,8 @@ fun getMealSignleWidget(year: Int, month: Int, days: Int, mealType:Int, context:
     return getMeal(context, arrayListOf(arrayListOf(year, month, days, mealType)))[0]
 }
 
-// meals: [[year, month, day, mealType], ...]
 fun getMeal(context: Context, meals: ArrayList<ArrayList<Int>>): ArrayList<ArrayList<String>> {
-    val db = Room.databaseBuilder(context, AppDatabase::class.java, "mealData").allowMainThreadQueries().enableMultiInstanceInvalidation().build()
+    val db = Room.databaseBuilder(context, MealDatabase::class.java, "mealData").build()
     val mealDataDao = db.mealDataDao()
     val resultData = ArrayList<ArrayList<String>>()
     val neededDates = ArrayList<String>()
@@ -94,7 +93,6 @@ fun getMealFromServer(meals: ArrayList<ArrayList<Int>>): ArrayList<ArrayList<Str
         }
         if (date == meals.last()) getIds()
     }
-    println(ids)
     val resultMeals = ArrayList<ArrayList<String>>()
     for (id in ids) {
         if (id == "No Data") { resultMeals.add(arrayListOf("데이터 없음", "데이터 없음", "데이터 없음")) }

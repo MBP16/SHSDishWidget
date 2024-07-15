@@ -118,9 +118,7 @@ fun MainScreenSettingView(activity: Activity) {
         }
     }
 
-    Text(text = "메인화면 설정", modifier = Modifier
-        .fillMaxWidth()
-        .padding(20.dp),
+    Text(text = "메인화면 설정", modifier = Modifier.fillMaxWidth().padding(20.dp),
         fontSize = MaterialTheme.typography.displaySmall.fontSize)
     Column() {
         Text(

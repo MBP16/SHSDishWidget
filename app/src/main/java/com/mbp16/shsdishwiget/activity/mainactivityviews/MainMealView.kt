@@ -49,6 +49,7 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
 
     val clipboardManager = activity.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+    val verticalScrollState = rememberScrollState()
 
     val margin = remember { mutableIntStateOf(8) }
     val fontSizeArray = remember { mutableStateListOf(32, 20, 18, 20) }
@@ -135,14 +136,23 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
             colorArray[6] = preferences[stringPreferencesKey("todayColor")] ?: "cc2df07b"
         }
     }
+    LaunchedEffect(week.toList()) {
+        verticalScrollState.scrollTo(0)
+    }
 
     if (orientation == 1) {
         Column(
-            modifier = Modifier.fillMaxSize().background(Color(parseColor("#${colorArray[0]}"))).verticalScroll(rememberScrollState()),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(parseColor("#${colorArray[0]}")))
+                .verticalScroll(verticalScrollState),
         ) {
             for (i in 0..<week.size) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(margin.intValue.dp).requiredHeight(400.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(margin.intValue.dp)
+                        .requiredHeight(400.dp),
                 ) {
                     MealCard(
                         clipboardManager, margin.intValue, fontSizeArray, colorArray, week[i], mealData[i],
@@ -153,11 +163,16 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
         }
     } else {
         Row(
-            modifier = Modifier.fillMaxSize().background(Color(parseColor("#${colorArray[0]}"))),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(parseColor("#${colorArray[0]}"))),
         ) {
             for (i in 0..<week.size) {
                 Column (
-                    modifier = Modifier.weight(1f).fillMaxHeight().padding(margin.intValue.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .padding(margin.intValue.dp),
                 ) {
                     MealCard(
                         clipboardManager, margin.intValue, fontSizeArray, colorArray, week[i], mealData[i],
@@ -168,12 +183,17 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
         }
     }
     Row(
-        modifier = Modifier.fillMaxSize().padding(margin.intValue.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(margin.intValue.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Button(
-            modifier = Modifier.padding(margin.intValue.dp).requiredWidth(50.dp).requiredHeight(50.dp),
+            modifier = Modifier
+                .padding(margin.intValue.dp)
+                .requiredWidth(50.dp)
+                .requiredHeight(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             onClick = {
                 viewingDateDelta.intValue -= 7
@@ -183,7 +203,10 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
             Text("<", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = MaterialTheme.typography.titleLarge.fontSize)
         }
         Button(
-            modifier = Modifier.padding(margin.intValue.dp).requiredWidth(50.dp).requiredHeight(50.dp),
+            modifier = Modifier
+                .padding(margin.intValue.dp)
+                .requiredWidth(50.dp)
+                .requiredHeight(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             onClick = {
                 viewingDateDelta.intValue += 7
@@ -205,7 +228,10 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
         ) {
             if (viewingDateDelta.intValue + todayWeekDay !in 1..7) {
                 Button(
-                    modifier = Modifier.padding(margin.intValue.dp).requiredHeight(50.dp).requiredWidth(170.dp),
+                    modifier = Modifier
+                        .padding(margin.intValue.dp)
+                        .requiredHeight(50.dp)
+                        .requiredWidth(170.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(parseColor("#${colorArray[6]}"))),
                     onClick = {
                         viewingDateDelta.intValue = 0
@@ -224,7 +250,11 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
                 onClick = {
                     pickingDate.value = !pickingDate.value
                 },
-                modifier = Modifier.padding(margin.intValue.dp).requiredWidth(50.dp).requiredHeight(50.dp).clip(CircleShape)
+                modifier = Modifier
+                    .padding(margin.intValue.dp)
+                    .requiredWidth(50.dp)
+                    .requiredHeight(50.dp)
+                    .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary),
             ) {
                 Icon(imageVector = Icons.Outlined.DateRange, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
@@ -233,7 +263,11 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
                 onClick = {
                     Intent(activity, SettingsActivity::class.java).also { startActivity(activity, it, null) }
                 },
-                modifier = Modifier.padding(margin.intValue.dp).requiredWidth(50.dp).requiredHeight(50.dp).clip(CircleShape)
+                modifier = Modifier
+                    .padding(margin.intValue.dp)
+                    .requiredWidth(50.dp)
+                    .requiredHeight(50.dp)
+                    .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary),
             ) {
                 Icon(imageVector = Icons.Outlined.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.surface)
@@ -293,13 +327,22 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
     )
     @Composable
     fun loading(){
-        Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp)
+        Box(modifier = Modifier
+            .padding(margin.dp)
+            .fillMaxWidth()
+            .requiredHeight(12.dp)
             .background(Color(parseColor("#${colorArray[3]}"))))
         for (j in 0..6) {
-            Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp)
+            Box(modifier = Modifier
+                .padding(margin.dp)
+                .fillMaxWidth()
+                .requiredHeight(12.dp)
                 .background(Color(parseColor("#${colorArray[4]}"))))
         }
-        Box(modifier = Modifier.padding(margin.dp).fillMaxWidth().requiredHeight(12.dp)
+        Box(modifier = Modifier
+            .padding(margin.dp)
+            .fillMaxWidth()
+            .requiredHeight(12.dp)
             .background(Color(parseColor("#${colorArray[5]}"))))
     }
     @Composable
@@ -316,15 +359,35 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
         Row (modifier = Modifier.fillMaxWidth()) {
             for (i in dayMeal) {
                 if (i[0] == "Loading") {
-                    Card(modifier = Modifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().weight(1f).shimmer(), shape = MaterialTheme.shapes.medium,
+                    Card(modifier = Modifier
+                        .padding(margin.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .weight(1f)
+                        .shimmer(), shape = MaterialTheme.shapes.medium,
                         colors = CardDefaults.cardColors(containerColor=Color(parseColor("#${colorArray[1]}")))
                     ) { loading() }
                 } else {
                     Card(shape = MaterialTheme.shapes.medium, colors = CardDefaults.cardColors(containerColor=Color(parseColor("#${colorArray[1]}"))),
-                        modifier = Modifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().weight(1f)
+                        modifier = Modifier
+                            .padding(margin.dp)
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .weight(1f)
                             .clickable {
-                                clipboardManager.setPrimaryClip(ClipData.newPlainText("meal", i[1].replace(",", "\n").replace(" ", "")))
-                                if (Build.VERSION.SDK_INT <= 32) { Toast.makeText(activity, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT).show() }
+                                clipboardManager.setPrimaryClip(
+                                    ClipData.newPlainText(
+                                        "meal",
+                                        i[1]
+                                            .replace(",", "\n")
+                                            .replace(" ", "")
+                                    )
+                                )
+                                if (Build.VERSION.SDK_INT <= 32) {
+                                    Toast
+                                        .makeText(activity, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
                             }) { content(i) }
                 }
             }
@@ -333,16 +396,35 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
         Column (modifier = Modifier.fillMaxWidth()) {
             for (i in dayMeal) {
                 if (i[0] == "Loading") {
-                    Card(modifier = Modifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().weight(1f).shimmer(), shape = MaterialTheme.shapes.medium,
+                    Card(modifier = Modifier
+                        .padding(margin.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .weight(1f)
+                        .shimmer(), shape = MaterialTheme.shapes.medium,
                         colors = CardDefaults.cardColors(containerColor=Color(parseColor("#${colorArray[1]}")))
                     ) { loading() }
                 } else {
                     Card(shape = MaterialTheme.shapes.medium, colors = CardDefaults.cardColors(containerColor=Color(parseColor("#${colorArray[1]}"))),
-                        modifier = Modifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().weight(1f)
+                        modifier = Modifier
+                            .padding(margin.dp)
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .weight(1f)
                             .clickable {
-                                clipboardManager.setPrimaryClip(ClipData.newPlainText("meal",
-                                    i[1].replace(",", "\n").replace(" ", "")))
-                                if (Build.VERSION.SDK_INT <= 32) { Toast.makeText(activity, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT).show() }
+                                clipboardManager.setPrimaryClip(
+                                    ClipData.newPlainText(
+                                        "meal",
+                                        i[1]
+                                            .replace(",", "\n")
+                                            .replace(" ", "")
+                                    )
+                                )
+                                if (Build.VERSION.SDK_INT <= 32) {
+                                    Toast
+                                        .makeText(activity, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
                             }) { content(i) }
                 }
             }
