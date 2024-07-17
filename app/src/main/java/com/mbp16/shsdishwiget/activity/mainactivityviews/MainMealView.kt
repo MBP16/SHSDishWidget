@@ -10,12 +10,11 @@ import android.graphics.Color.parseColor
 import android.os.Build
 import android.os.Looper
 import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Settings
@@ -39,16 +38,18 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.mbp16.shsdishwiget.activity.SettingsActivity
 import com.mbp16.shsdishwiget.utils.getMeals
 import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.ceil
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
     val orientation = LocalConfiguration.current.orientation
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
 
     val clipboardManager = activity.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+    val pageState = rememberPagerState(pageCount = {3}, initialPage = 1)
     val verticalScrollState = rememberScrollState()
 
     val margin = remember { mutableIntStateOf(8) }
@@ -59,7 +60,12 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
     val viewingDateDelta = remember { mutableIntStateOf(0) }
     val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
     val mealData = remember { mutableStateListOf(arrayListOf(arrayListOf("Loading", "Loading", "Loading"))) }
-    val week = remember { mutableStateListOf<ArrayList<Int>>(arrayListOf(0, 0, 0)) }
+    val lastWeek = remember { mutableStateListOf(arrayListOf(0, 0, 0)) }
+    val week = remember { mutableStateListOf(arrayListOf(0, 0, 0)) }
+    val nextWeek = remember { mutableStateListOf(arrayListOf(0, 0, 0)) }
+
+    val loadingArray = remember { mutableStateListOf(arrayListOf(arrayListOf(""))) }
+    val coroutineScope = rememberCoroutineScope()
 
     fun updateData() {
         fun exceptionHandler() {
@@ -85,41 +91,53 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
         }
         val thread = Thread {
             Runnable {
+                val previousDelta = viewingDateDelta.intValue
                 val data = getMeals(ArrayList(week), activity)
-                mealData.clear()
-                mealData.addAll(data)
+                if (previousDelta == viewingDateDelta.intValue) {
+                    mealData.clear()
+                    mealData.addAll(data)
+                }
             }.run()
         }
         thread.setUncaughtExceptionHandler { _, _ -> exceptionHandler() }
         thread.start()
     }
-    fun setWeek() {
-        val newWeek = ArrayList<ArrayList<Int>>()
+    fun setWeek(doNotScroll: Boolean = false) {
+        if (!doNotScroll) {
+            coroutineScope.launch {
+                verticalScrollState.scrollTo(0)
+            }
+        }
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DATE, viewingDateDelta.intValue)
         val viewingWeekDay = calendar.get(Calendar.DAY_OF_WEEK)
-        for (i in 2..6) {
-            val cal = Calendar.getInstance()
-            cal.add(Calendar.DATE, viewingDateDelta.intValue + i - viewingWeekDay)
-            newWeek.add(arrayListOf(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)))
-        }
-        if (week[0] != newWeek[0]) {
+        calendar.add(Calendar.DATE, -viewingWeekDay + 2)
+        val firstDay = arrayListOf(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH))
+        if (week[0] != firstDay) {
             week.clear()
-            week.addAll(newWeek)
-            mealData.clear()
-            for (i in 0..4) {
-                mealData.add(
-                    arrayListOf(
-                        arrayListOf("Loading", "Loading", "Loading"),
-                        arrayListOf("Loading", "Loading", "Loading"),
-                    )
-                )
+            lastWeek.clear()
+            nextWeek.clear()
+            for (i in 2..6) {
+                val cal = Calendar.getInstance()
+                cal.add(Calendar.DATE, viewingDateDelta.intValue + i - viewingWeekDay)
+                week.add(arrayListOf(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)))
+                cal.add(Calendar.DATE, 7)
+                nextWeek.add(arrayListOf(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)))
+                cal.add(Calendar.DATE, -14)
+                lastWeek.add(arrayListOf(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)))
+                cal.add(Calendar.DATE, 7)
             }
+            mealData.clear()
+            mealData.addAll(loadingArray)
             updateData()
         }
     }
 
     LaunchedEffect(Unit) {
+        loadingArray.clear()
+        for (i in 2..6) {
+            loadingArray.add(arrayListOf(arrayListOf("Loading", "Loading", "Loading"), arrayListOf("Loading", "Loading", "Loading")))
+        }
         setWeek()
         dataStore.data.collect { preferences ->
             margin.intValue = preferences[intPreferencesKey("margin")] ?: 8
@@ -136,48 +154,78 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
             colorArray[6] = preferences[stringPreferencesKey("todayColor")] ?: "cc2df07b"
         }
     }
-    LaunchedEffect(week.toList()) {
-        verticalScrollState.scrollTo(0)
+    LaunchedEffect(pageState.settledPage) {
+        if (pageState.settledPage == 0) {
+            viewingDateDelta.intValue -= 7
+            setWeek()
+            pageState.scrollToPage(1)
+        } else if (pageState.settledPage == 2) {
+            viewingDateDelta.intValue += 7
+            setWeek()
+            pageState.scrollToPage(1)
+        }
     }
 
-    if (orientation == 1) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(parseColor("#${colorArray[0]}")))
-                .verticalScroll(verticalScrollState),
-        ) {
-            for (i in 0..<week.size) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(margin.intValue.dp)
-                        .requiredHeight(400.dp),
-                ) {
-                    MealCard(
-                        clipboardManager, margin.intValue, fontSizeArray, colorArray, week[i], mealData[i],
-                        viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2, activity, true
-                    )
-                }
+    HorizontalPager(state = pageState) { page ->
+        val meal: List<ArrayList<ArrayList<String>>>
+        val days: List<ArrayList<Int>>
+        when (page) {
+            1 -> {
+                meal = mealData
+                days = week
+            }
+            0 -> {
+                days = lastWeek
+                meal = loadingArray
+            }
+            2 -> {
+                days = nextWeek
+                meal = loadingArray
+            }
+            else -> {
+                days = ArrayList()
+                meal = ArrayList()
             }
         }
-    } else {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(parseColor("#${colorArray[0]}"))),
-        ) {
-            for (i in 0..<week.size) {
-                Column (
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .padding(margin.intValue.dp),
-                ) {
-                    MealCard(
-                        clipboardManager, margin.intValue, fontSizeArray, colorArray, week[i], mealData[i],
-                        viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2, activity
-                    )
+        if (orientation == 1) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(parseColor("#${colorArray[0]}")))
+                    .verticalScroll(verticalScrollState),
+            ) {
+                for (i in days.indices) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(margin.intValue.dp)
+                            .requiredHeight(400.dp),
+                    ) {
+                        MealCard(
+                            clipboardManager, margin.intValue, fontSizeArray, colorArray, days[i], meal[i],
+                            viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2, activity, true
+                        )
+                    }
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(parseColor("#${colorArray[0]}"))),
+            ) {
+                for (i in days.indices) {
+                    Column (
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(margin.intValue.dp),
+                    ) {
+                        MealCard(
+                            clipboardManager, margin.intValue, fontSizeArray, colorArray, days[i], meal[i],
+                            viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2, activity
+                        )
+                    }
                 }
             }
         }
@@ -235,7 +283,18 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
                     colors = ButtonDefaults.buttonColors(containerColor = Color(parseColor("#${colorArray[6]}"))),
                     onClick = {
                         viewingDateDelta.intValue = 0
-                        setWeek()
+                        setWeek(true)
+                        if (orientation == 1) {
+                            coroutineScope.launch {
+                                when (todayWeekDay) {
+                                    2 -> verticalScrollState.scrollTo(0)
+                                    3 -> verticalScrollState.scrollTo(1200)
+                                    4 -> verticalScrollState.scrollTo(2400)
+                                    5 -> verticalScrollState.scrollTo(3600)
+                                    6 -> verticalScrollState.scrollTo(4800)
+                                }
+                            }
+                        }
                     }
                 ) {
                     Text(
@@ -355,6 +414,18 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
             color = Color(parseColor("#${colorArray[5]}")),
             modifier = Modifier.padding(margin.dp), fontWeight = FontWeight.Bold)
     }
+    fun copyToClipboard(input: String) {
+        clipboardManager.setPrimaryClip(
+            ClipData.newPlainText(
+                "meal", input.replace(",", "\n").replace(" ", "")
+            )
+        )
+        if (Build.VERSION.SDK_INT <= 32) {
+            Toast
+                .makeText(activity, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
     if (portrait) {
         Row (modifier = Modifier.fillMaxWidth()) {
             for (i in dayMeal) {
@@ -374,21 +445,7 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
                             .fillMaxWidth()
                             .fillMaxHeight()
                             .weight(1f)
-                            .clickable {
-                                clipboardManager.setPrimaryClip(
-                                    ClipData.newPlainText(
-                                        "meal",
-                                        i[1]
-                                            .replace(",", "\n")
-                                            .replace(" ", "")
-                                    )
-                                )
-                                if (Build.VERSION.SDK_INT <= 32) {
-                                    Toast
-                                        .makeText(activity, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT)
-                                        .show()
-                                }
-                            }) { content(i) }
+                            .clickable { copyToClipboard(i[1]) }) { content(i) }
                 }
             }
         }
@@ -411,25 +468,9 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
                             .fillMaxWidth()
                             .fillMaxHeight()
                             .weight(1f)
-                            .clickable {
-                                clipboardManager.setPrimaryClip(
-                                    ClipData.newPlainText(
-                                        "meal",
-                                        i[1]
-                                            .replace(",", "\n")
-                                            .replace(" ", "")
-                                    )
-                                )
-                                if (Build.VERSION.SDK_INT <= 32) {
-                                    Toast
-                                        .makeText(activity, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT)
-                                        .show()
-                                }
-                            }) { content(i) }
+                            .clickable { copyToClipboard(i[1]) }) { content(i) }
                 }
             }
         }
     }
 }
-
-
