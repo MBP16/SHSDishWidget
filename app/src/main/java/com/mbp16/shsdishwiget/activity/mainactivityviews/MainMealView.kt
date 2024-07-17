@@ -10,6 +10,8 @@ import android.graphics.Color.parseColor
 import android.os.Build
 import android.os.Looper
 import android.widget.Toast
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -25,6 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -66,6 +70,8 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
 
     val loadingArray = remember { mutableStateListOf(arrayListOf(arrayListOf(""))) }
     val coroutineScope = rememberCoroutineScope()
+
+    val veticalCoordinates = remember { mutableStateListOf(0, 0, 0, 0, 0) }
 
     fun updateData() {
         fun exceptionHandler() {
@@ -125,7 +131,6 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
                 nextWeek.add(arrayListOf(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)))
                 cal.add(Calendar.DATE, -14)
                 lastWeek.add(arrayListOf(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)))
-                cal.add(Calendar.DATE, 7)
             }
             mealData.clear()
             mealData.addAll(loadingArray)
@@ -199,11 +204,14 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(margin.intValue.dp)
-                            .requiredHeight(400.dp),
+                            .requiredHeight(400.dp)
+                            .onGloballyPositioned { layoutCoordinates ->
+                                veticalCoordinates[i] = layoutCoordinates.positionInRoot().y.toInt()
+                            },
                     ) {
                         MealCard(
                             clipboardManager, margin.intValue, fontSizeArray, colorArray, days[i], meal[i],
-                            viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2, activity, true
+                            viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2 && page == 1, activity, true
                         )
                     }
                 }
@@ -223,7 +231,7 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
                     ) {
                         MealCard(
                             clipboardManager, margin.intValue, fontSizeArray, colorArray, days[i], meal[i],
-                            viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2, activity
+                            viewingDateDelta.intValue + todayWeekDay in 1..7 && i == todayWeekDay - 2 && page == 1, activity
                         )
                     }
                 }
@@ -286,12 +294,13 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
                         setWeek(true)
                         if (orientation == 1) {
                             coroutineScope.launch {
+                                val animationSpec = tween<Float>(1000, easing=FastOutSlowInEasing)
                                 when (todayWeekDay) {
-                                    2 -> verticalScrollState.scrollTo(0)
-                                    3 -> verticalScrollState.scrollTo(1200)
-                                    4 -> verticalScrollState.scrollTo(2400)
-                                    5 -> verticalScrollState.scrollTo(3600)
-                                    6 -> verticalScrollState.scrollTo(4800)
+                                    2 -> verticalScrollState.animateScrollTo(veticalCoordinates[0], animationSpec)
+                                    3 -> verticalScrollState.animateScrollTo(veticalCoordinates[1], animationSpec)
+                                    4 -> verticalScrollState.animateScrollTo(veticalCoordinates[2], animationSpec)
+                                    5 -> verticalScrollState.animateScrollTo(veticalCoordinates[3], animationSpec)
+                                    6 -> verticalScrollState.animateScrollTo(veticalCoordinates[4], animationSpec)
                                 }
                             }
                         }
