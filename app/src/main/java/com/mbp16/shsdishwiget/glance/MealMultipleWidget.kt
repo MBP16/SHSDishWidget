@@ -58,10 +58,7 @@ class MealMultipleWidget : GlanceAppWidget() {
                 val cal = Calendar.getInstance()
                 if (showNextWeek) { if (i - todayWeekDay < 0) cal.add(Calendar.DATE, 7) }
                 cal.add(Calendar.DATE, i - todayWeekDay)
-                val day = cal.get(Calendar.DAY_OF_MONTH)
-                val month = cal.get(Calendar.MONTH) + 1
-                val year = cal.get(Calendar.YEAR)
-                week.add(arrayListOf(year, month, day))
+                week.add(arrayListOf(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH)))
                 mealData.add(
                     arrayListOf(
                         arrayListOf("Loading", "Loading", "Loading"),
@@ -95,6 +92,7 @@ class MealMultipleWidget : GlanceAppWidget() {
         }
         LaunchedEffect(Unit) {
             setWeek()
+            println(week.toList())
             updateData()
         }
         Row(
@@ -102,7 +100,7 @@ class MealMultipleWidget : GlanceAppWidget() {
                 .clickable(actionStartActivity<MainActivity>())
         ) {
             for (i in 0..<week.size) {
-                MealCard(week[i], mealData[i])
+                MealCard(week[i], mealData[i], todayWeekDay - 2 == i)
             }
         }
         if (errorOcurred.value) {
@@ -127,7 +125,7 @@ class MealMultipleWidget : GlanceAppWidget() {
     }
 
     @Composable
-    fun RowScope.MealCard(day: ArrayList<Int>, dayMeal: ArrayList<ArrayList<String>>) {
+    fun RowScope.MealCard(day: ArrayList<Int>, dayMeal: ArrayList<ArrayList<String>>, isToday: Boolean) {
         val prefs = currentState<Preferences>()
         val margin = prefs[intPreferencesKey("margin")] ?: 8
 
@@ -140,14 +138,15 @@ class MealMultipleWidget : GlanceAppWidget() {
         val titleColor = prefs[stringPreferencesKey("titleColor")] ?: "ffe4bebd"
         val mealColor = prefs[stringPreferencesKey("mealColor")] ?: "ffe2e3e5"
         val calorieColor = prefs[stringPreferencesKey("calorieColor")] ?: "ff8dcae7"
+        val todayColor = prefs[stringPreferencesKey("todayColor")] ?: "cc2df07b"
 
         Column (
             modifier = GlanceModifier.defaultWeight().fillMaxHeight().padding(margin.dp),
         ) {
             Text(
                 text = "${day[0]}년 ${day[1]}월 ${day[2]}일",
-                style= TextStyle(fontSize = dateFontSize.sp, textAlign = TextAlign.Center,
-                    color = ColorProvider(Color(parseColor("#$dateColor"))), fontWeight = FontWeight.Bold),
+                style= TextStyle(fontSize = dateFontSize.sp, textAlign = TextAlign.Center, fontWeight = FontWeight.Bold,
+                    color = ColorProvider(Color(parseColor(if (isToday) "#$todayColor" else "#$dateColor")))),
                 modifier = GlanceModifier.padding(margin.dp).fillMaxWidth()
             )
             for (i in dayMeal) {

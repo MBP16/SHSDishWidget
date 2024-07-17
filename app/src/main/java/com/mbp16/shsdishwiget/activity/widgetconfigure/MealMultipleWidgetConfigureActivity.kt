@@ -61,6 +61,7 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
     val titleColor = remember { mutableStateOf("ffe4bebd") }
     val mealColor = remember { mutableStateOf("ffe2e3e5") }
     val calorieColor = remember { mutableStateOf("ff8dcae7") }
+    val todayColor = remember { mutableStateOf("cc2df07b") }
 
     val coroutineScope = rememberCoroutineScope()
     val appWidgetId = activity.intent?.extras?.getInt(
@@ -84,6 +85,7 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
                 titleColor.value = it[stringPreferencesKey("titleColor")] ?: "ffe4bebd"
                 mealColor.value = it[stringPreferencesKey("mealColor")] ?: "ffe2e3e5"
                 calorieColor.value = it[stringPreferencesKey("calorieColor")] ?: "ff8dcae7"
+                todayColor.value = it[stringPreferencesKey("todayColor")] ?: "cc2df07b"
             }
         }
     }
@@ -100,6 +102,7 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
         titleColor.value = "ffe4bebd"
         mealColor.value = "ffe2e3e5"
         calorieColor.value = "ff8dcae7"
+        todayColor.value = "cc2df07b"
     }
 
     fun saveData() {
@@ -118,6 +121,7 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
                     it[stringPreferencesKey("titleColor")] = titleColor.value
                     it[stringPreferencesKey("mealColor")] = mealColor.value
                     it[stringPreferencesKey("calorieColor")] = calorieColor.value
+                    it[stringPreferencesKey("todayColor")] = todayColor.value
                 }
                 MealMultipleWidget().update(activity, glanceId)
                 Toast.makeText(activity, "저장 완료", Toast.LENGTH_SHORT).show()
@@ -194,6 +198,15 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
         TextStyleChange("급식 표기 설정", mealFontSize, mealColor)
         Divider()
         TextStyleChange("칼로리 표기 설정", calorieFontSize, calorieColor)
+        Divider()
+        Column {
+            Text(
+                text="오늘 날짜 표기 설정",
+                fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                modifier = Modifier.padding(16.dp)
+            )
+            ColorChangingRow(todayColor)
+        }
         Column(modifier = Modifier.fillMaxWidth().requiredHeight(72.dp)) {}
     }
     Box(
