@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -140,12 +141,15 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
             Text(
                 text = "전체 설정",
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp)
+                modifier = Modifier.padding(16.dp)
             )
             Row(
                 modifier = Modifier
+                    .clickable {
+                        showNextWeekChecked.value = !showNextWeekChecked.value
+                    }
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(16.dp, 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -163,7 +167,7 @@ fun MealMultipleWidgetConfigureScreen(activity: Activity) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp, 0.dp, 16.dp, 16.dp),
+                    .padding(16.dp, 8.dp, 16.dp, 0.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {

@@ -79,9 +79,9 @@ fun DatabaseManagementView(activity: Activity) {
     Column {
         Row(
             modifier = Modifier
+                .clickable { viewingDialog.value = true }
                 .fillMaxWidth()
-                .padding(20.dp)
-                .clickable { viewingDialog.value = true },
+                .padding(20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -90,9 +90,9 @@ fun DatabaseManagementView(activity: Activity) {
         }
         Divider()
         Text(text = "데이터 전체 삭제", modifier = Modifier
+            .clickable { viewingConfirmDialog.value = true }
             .fillMaxWidth()
-            .padding(20.dp)
-            .clickable { viewingConfirmDialog.value = true })
+            .padding(20.dp))
     }
 }
 

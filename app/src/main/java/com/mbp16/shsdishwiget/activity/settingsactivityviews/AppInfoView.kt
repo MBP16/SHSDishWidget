@@ -76,9 +76,6 @@ fun AppInfoView(activity: Activity) {
     Text(
         text="오픈소스 라이선스",
         modifier = Modifier
-            .fillMaxWidth()
-            .requiredHeight(64.dp)
-            .padding(20.dp)
             .clickable {
                 Intent(activity, OssLicensesMenuActivity::class.java).also {
                     startActivity(
@@ -87,16 +84,23 @@ fun AppInfoView(activity: Activity) {
                         null
                     )
                 }
-            },
+            }.fillMaxWidth().requiredHeight(64.dp).padding(20.dp),
         fontSize = MaterialTheme.typography.titleMedium.fontSize
     )
     Divider()
     Row(
         modifier = Modifier
+            .clickable {
+                updateAuto.value = !updateAuto.value
+                coroutineScope.launch {
+                    dataStore.edit { preferences ->
+                        preferences[MainActivitySettingDataStore.updateAuto] = updateAuto.value
+                    }
+                }
+            }
             .fillMaxWidth()
             .requiredHeight(64.dp)
-            .padding(20.dp)
-            .clickable { checkUpdate() },
+            .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -113,10 +117,10 @@ fun AppInfoView(activity: Activity) {
     Divider()
     Row(
         modifier = Modifier
+            .clickable { checkUpdate() }
             .fillMaxWidth()
             .requiredHeight(64.dp)
-            .padding(20.dp)
-            .clickable { checkUpdate() },
+            .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

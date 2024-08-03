@@ -21,10 +21,10 @@ fun TextStyleChange(name: String, fontSizeVariable: MutableIntState, colorVariab
         Text(
             text=name,
             fontSize = MaterialTheme.typography.titleLarge.fontSize,
-            modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp)
+            modifier = Modifier.padding(16.dp)
         )
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp, 0.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -60,7 +60,9 @@ fun ColorChangingRow(colorVariable: MutableState<String>) {
     }
 
     Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp, 0.dp, 16.dp, 16.dp),
+        modifier = Modifier.fillMaxWidth().clickable {
+            changingColor.value = true
+        }.padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
