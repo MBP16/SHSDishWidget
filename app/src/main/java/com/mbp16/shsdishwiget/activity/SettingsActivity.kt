@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mbp16.shsdishwiget.activity.settingsactivityviews.AppInfoView
 import com.mbp16.shsdishwiget.activity.settingsactivityviews.DatabaseManagementView
+import com.mbp16.shsdishwiget.activity.settingsactivityviews.GetMealSettingView
 import com.mbp16.shsdishwiget.activity.settingsactivityviews.MainScreenSettingView
 import com.mbp16.shsdishwiget.ui.theme.SHSDishWigetTheme
 
@@ -35,6 +36,7 @@ fun SettingView(activity: Activity) {
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         MainScreenSettingView(activity)
         DatabaseManagementView(activity)
+        GetMealSettingView(activity)
         AppInfoView(activity)
     }
 }

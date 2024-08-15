@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.mbp16.shsdishwiget.activity.mainactivityviews.InitialSettingsView
 import com.mbp16.shsdishwiget.activity.mainactivityviews.MealView
 import com.mbp16.shsdishwiget.activity.mainactivityviews.UpdateView
 import com.mbp16.shsdishwiget.activity.settingsactivityviews.MainActivitySettingDataStore
@@ -23,6 +24,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val dataStore = (LocalContext.current).dataStore
+            val dataFirmed = remember { mutableStateOf(false) }
             val dialogViewing = remember { mutableStateOf(false) }
             var result: Any = false
             LaunchedEffect(Unit) {
@@ -36,6 +38,7 @@ class MainActivity : ComponentActivity() {
                         thread.setUncaughtExceptionHandler { _, _ -> dialogViewing.value = false }
                         thread.start()
                     }
+                    dataFirmed.value = preferences[MainActivitySettingDataStore.margin] != null
                 }
             }
             SHSDishWigetTheme {
@@ -43,7 +46,11 @@ class MainActivity : ComponentActivity() {
                     if (dialogViewing.value) {
                         UpdateView(dialogViewing, result as Release, this)
                     }
-                    MealView(this, dataStore)
+                    if (dataFirmed.value) {
+                        MealView(this, dataStore)
+                    } else {
+                        InitialSettingsView(this, dataStore)
+                    }
                 }
             }
         }
