@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                             if (result != false) {dialogViewing.value = true}
                         }
                         thread.setUncaughtExceptionHandler { _, _ -> dialogViewing.value = false }
-                        thread.start()
+//                        thread.start()
                     }
                     dataFirmed.value = preferences[MainActivitySettingDataStore.margin] != null
                 }
