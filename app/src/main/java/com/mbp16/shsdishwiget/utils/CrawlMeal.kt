@@ -51,7 +51,11 @@ fun type1GetMealData(link: String, id: Number): ArrayList<String> {
     for (i in arrayOf("제목", "식단", "칼로리")) {
         var data = response.select("th:contains($i)").first()?.nextElementSibling()?.text()
         if (i == "식단") {
-            data = data?.replace(" ", "\n")?.replace(",", "\n")?.replace("\\((\\d+.*)+\\)".toRegex(), "")
+            data = data
+                ?.replace(" ", "\n")
+                ?.replace(",", "\n")
+                ?.replace("\\((\\d+\\.*)+\\)".toRegex(), "\n")
+                ?.replace("\n\n", "\n")
         }
         if (data != null) {
             datas.add(data)

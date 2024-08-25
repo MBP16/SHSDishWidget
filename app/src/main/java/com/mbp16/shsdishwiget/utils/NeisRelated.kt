@@ -62,7 +62,7 @@ fun getNeisMeal(areaCode: String, schoolCode: String, dates: ArrayList<ArrayList
         for (i in parsedResponse) {
             if (i.MLSV_YMD == date.joinToString("", transform = { String.format("%02d", it) })) {
                 meal = arrayListOf(i.MMEAL_SC_NM,
-                    i.DDISH_NM.replace("<br/>", "\n").replace("\\((\\d+.*)+\\)".toRegex(), ""),
+                    i.DDISH_NM.replace("<br/>", "\n").replace("\\((\\d+\\.*)+\\)".toRegex(), ""),
                     i.CAL_INFO)
                 break
             }
