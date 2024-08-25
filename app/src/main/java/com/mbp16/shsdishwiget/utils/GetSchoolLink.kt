@@ -3,7 +3,7 @@ package com.mbp16.shsdishwiget.utils
 import org.jsoup.Jsoup
 
 fun getRealMainPageLink(mainPageLink: String): String {
-    var link = mainPageLink.replace("http://", "https://")
+    var link = mainPageLink.replace("http://", "https://") + "/"
     val response = Jsoup.connect(link)
         .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
         .ignoreHttpErrors(true)
