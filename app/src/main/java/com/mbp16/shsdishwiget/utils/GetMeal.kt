@@ -1,21 +1,14 @@
 package com.mbp16.shsdishwiget.utils
 
 import android.content.Context
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.datastore.dataStore
 import androidx.room.Room
 import com.mbp16.shsdishwiget.activity.settingsactivityviews.GetMealSettingDataStore
 import com.mbp16.shsdishwiget.activity.settingsactivityviews.GetMealSettingDataStore.Companion.mealDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
 import java.util.Calendar
 
 fun getMeals(dates: ArrayList<ArrayList<Int>>, context: Context): ArrayList<ArrayList<ArrayList<String>>> {
@@ -133,17 +126,22 @@ fun getMealFromNeis(meals: ArrayList<ArrayList<Int>>, areaCode: String, schoolCo
 }
 
 fun getMealFromSchool(meals: ArrayList<ArrayList<Int>>, schoolGetType: Int, schoolIdLink: String, schoolMealLink: String): ArrayList<ArrayList<String>> {
-    val ids = ArrayList<String>()
+    val resultMeals = ArrayList<ArrayList<String>>()
     var tempYear: Number = meals[0][0]
     var tempMonth: Number = meals[0][1]
     val tempDateTypes = ArrayList<ArrayList<Int>>()
-    fun getIds() {
-        val id = type1GetId(schoolMealLink, tempYear, tempMonth, tempDateTypes)
-        ids.addAll(id)
+    fun getMeals() {
+        resultMeals.addAll(
+            when (schoolGetType) {
+                1 -> type1GetMeal(schoolMealLink, schoolIdLink, tempYear, tempMonth, tempDateTypes)
+                2 -> type2GetMeal(schoolMealLink, schoolIdLink, tempYear, tempMonth, tempDateTypes)
+                else -> arrayListOf(arrayListOf("데이터 없음", "데이터 없음", "데이터 없음"))
+            }
+        )
         tempDateTypes.clear()
     }
     for (date in meals) {
-        if (tempMonth != date[1]) getIds()
+        if (tempMonth != date[1]) getMeals()
         tempYear = date[0]
         tempMonth = date[1]
         if (date[3] == 3 && tempDateTypes.isNotEmpty() && tempDateTypes.last()[0] == date[2]) {
@@ -152,12 +150,7 @@ fun getMealFromSchool(meals: ArrayList<ArrayList<Int>>, schoolGetType: Int, scho
         } else {
             tempDateTypes.add(arrayListOf(date[2], date[3]))
         }
-        if (date == meals.last()) getIds()
-    }
-    val resultMeals = ArrayList<ArrayList<String>>()
-    for (id in ids) {
-        if (id == "No Data") { resultMeals.add(arrayListOf("데이터 없음", "데이터 없음", "데이터 없음")) }
-        else { resultMeals.add(type1GetMealData(schoolIdLink, id.toInt())) }
+        if (date == meals.last()) getMeals()
     }
     return resultMeals
 }

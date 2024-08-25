@@ -4,8 +4,8 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 //Type 1: 서울시 교육청
-fun type1GetId(link: String, year: Number, month: Number, dayTypes: ArrayList<ArrayList<Int>>): ArrayList<String> {
-    val response = Jsoup.connect(link)
+fun type1GetMeal(mealPagelink: String, mealIdLink: String, year: Number, month: Number, dayTypes: ArrayList<ArrayList<Int>>): ArrayList<ArrayList<String>> {
+    var response = Jsoup.connect(mealPagelink)
         .data("srhMlsvYear", year.toString())
         .data("srhMlsvMonth", month.toString())
         .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
@@ -23,7 +23,7 @@ fun type1GetId(link: String, year: Number, month: Number, dayTypes: ArrayList<Ar
         if (dayMeal == null) {
             when (day[1]) {
                 2, 3 -> mealIds.add("No Data")
-                else -> mealIds.addAll(arrayListOf("No Data", "No Data"))
+                else -> mealIds.addAll(listOf("No Data", "No Data"))
             }
             continue
         }
@@ -33,33 +33,45 @@ fun type1GetId(link: String, year: Number, month: Number, dayTypes: ArrayList<Ar
             else { mealIds.add("No Data") }
         } else {
             when (meals.size) {
-                0 -> mealIds.addAll(arrayListOf("No Data", "No Data"))
-                1 -> mealIds.addAll(arrayListOf(meals[0].attr("onclick").split("'")[1], "No Data"))
-                else -> mealIds.addAll(arrayListOf(meals[0].attr("onclick").split("'")[1], meals[1].attr("onclick").split("'")[1]))
+                0 -> mealIds.addAll(listOf("No Data", "No Data"))
+                1 -> mealIds.addAll(listOf(meals[0].attr("onclick").split("'")[1], "No Data"))
+                else -> mealIds.addAll(listOf(meals[0].attr("onclick").split("'")[1], meals[1].attr("onclick").split("'")[1]))
             }
         }
     }
-    return mealIds
-}
-
-fun type1GetMealData(link: String, id: Number): ArrayList<String> {
-    val response = Jsoup.connect(link)
-        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
-        .data("mlsvId", id.toString())
-        .post()
-    val datas = ArrayList<String>()
-    for (i in arrayOf("제목", "식단", "칼로리")) {
-        var data = response.select("th:contains($i)").first()?.nextElementSibling()?.text()
-        if (i == "식단") {
-            data = data
-                ?.replace(" ", "\n")
-                ?.replace(",", "\n")
-                ?.replace("\\((\\d+\\.*)+\\)".toRegex(), "\n")
-                ?.replace("\n\n", "\n")
+    fun type1GetMealData(link: String, id: Number): ArrayList<String> {
+        response = Jsoup.connect(link)
+            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")
+            .data("mlsvId", id.toString())
+            .post()
+        val datas = ArrayList<String>()
+        for (i in arrayOf("제목", "식단", "칼로리")) {
+            var data = response.select("th:contains($i)").first()?.nextElementSibling()?.text()
+            if (i == "식단") {
+                data = data
+                    ?.replace(" ", "\n")
+                    ?.replace(",", "\n")
+                    ?.replace("\\((\\d+\\.*)+\\)".toRegex(), "\n")
+                    ?.replace("\n\n", "\n")
+            }
+            if (data != null) {
+                datas.add(data)
+            }
         }
-        if (data != null) {
-            datas.add(data)
+        return datas
+    }
+    val resultMeals = ArrayList<ArrayList<String>>()
+    for (id in mealIds) {
+        if (id == "No Data") {
+            resultMeals.add(arrayListOf("데이터 없음", "데이터 없음", "데이터 없음"))
+        } else {
+            resultMeals.add(type1GetMealData(mealIdLink, id.toInt()))
         }
     }
-    return datas
+    return resultMeals
+}
+
+//Type 2: 경기도 교육청
+fun type2GetMeal(mealPagelink: String, mealIdLink: String, year: Number, month: Number, dayTypes: ArrayList<ArrayList<Int>>): ArrayList<ArrayList<String>> {
+    return arrayListOf(arrayListOf("데이터 없음", "데이터 없음", "데이터 없음"))
 }

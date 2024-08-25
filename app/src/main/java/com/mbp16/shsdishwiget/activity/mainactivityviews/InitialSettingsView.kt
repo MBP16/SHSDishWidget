@@ -2,7 +2,6 @@ package com.mbp16.shsdishwiget.activity.mainactivityviews
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.drawable.shapes.RoundRectShape
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -31,13 +30,9 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.UrlAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
@@ -47,8 +42,8 @@ import com.mbp16.shsdishwiget.activity.settingsactivityviews.GetMealSettingDataS
 import com.mbp16.shsdishwiget.utils.getRealMainPageLink
 import com.mbp16.shsdishwiget.utils.getSchoolInfo
 import com.mbp16.shsdishwiget.utils.getSchoolMealPageLink
-import com.mbp16.shsdishwiget.utils.type1GetId
-import com.mbp16.shsdishwiget.utils.type1GetMealData
+import com.mbp16.shsdishwiget.utils.type1GetMeal
+import com.mbp16.shsdishwiget.utils.type2GetMeal
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -544,15 +539,16 @@ fun CheckingMealIDLink(schoolMealLink: MutableState<String>, schoolIdLink: Mutab
     val idLink = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
+        val rootLink = schoolMealLink.value
+        if (rootLink.endsWith("/")) {
+            schoolMealLink.value = rootLink.dropLast(1)
+        }
         if (schoolMealLink.value.contains("subMenu.do")) {
             schoolGetType.intValue = 1
-            idLink.value = schoolInfo.value[4].let {
-                if (it.endsWith("/")) {
-                    it + "dggb/module/mlsv/selectMlsvDetailPopup.do"
-                } else {
-                    "$it/dggb/module/mlsv/selectMlsvDetailPopup.do"
-                }
-            }
+            idLink.value = "$rootLink/dggb/module/mlsv/selectMlsvDetailPopup.do"
+        } else if (schoolMealLink.value.contains("selectFoodMenuView.do")) {
+            schoolGetType.intValue = 2
+            idLink.value = "$rootLink/ad/fm/foodmenu/selectFoodData.do"
         } else {
             schoolGetType.intValue = -1
             idLink.value = "none"
@@ -570,16 +566,10 @@ fun CheckingMealIDLink(schoolMealLink: MutableState<String>, schoolIdLink: Mutab
             return@LaunchedEffect
         } else if (schoolGetType.intValue == 1) {
             thread = Thread() {
-                val id = type1GetId(
-                    schoolMealLink.value,
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH) + 1,
-                    arrayListOf(arrayListOf(calendar.get(Calendar.DAY_OF_MONTH), 0))
-                )
-                if (id[0] == "No Data") {
-                    mealData.value = listOf("No Data")
-                } else {
-                    mealData.value = type1GetMealData(idLink.value, id[0].toInt()).toList()
+                mealData.value = when (schoolGetType.intValue) {
+                    1 -> type1GetMeal(schoolMealLink.value, idLink.value, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, arrayListOf(arrayListOf(calendar.get(Calendar.DAY_OF_MONTH), 2)))[0].toList()
+                    2 -> type2GetMeal(schoolMealLink.value, idLink.value, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, arrayListOf(arrayListOf(calendar.get(Calendar.DAY_OF_MONTH), 2)))[0].toList()
+                    else -> listOf("No Data")
                 }
                 schoolIdLink.value = idLink.value
             }
