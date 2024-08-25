@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
@@ -24,26 +25,34 @@ import com.mbp16.shsdishwiget.utils.MealDatabase
 fun DatabaseManagementView(activity: Activity) {
     val db = Room.databaseBuilder(activity, MealDatabase::class.java, "mealData").allowMainThreadQueries().build()
     val mealDataDao = db.mealDataDao()
-    val storedDateTypes = remember { mutableListOf("") }
+    val keys = remember { mutableListOf<String>() }
+    val storedDates = remember { mutableListOf<String>() }
     val viewingDialog = remember { mutableStateOf(false) }
     val viewingConfirmDialog = remember { mutableStateOf(false) }
     val totalCount = remember { mutableIntStateOf(0) }
     val fileSize = remember { mutableLongStateOf(0L) }
 
-    LaunchedEffect(key1 = Unit) {
-        totalCount.intValue = mealDataDao.getCount()
-        storedDateTypes.clear()
-        storedDateTypes.addAll(mealDataDao.getAll().map { it.dateType })
+    LaunchedEffect(Unit) {
+        totalCount.intValue = mealDataDao.getCount() / 10
+        val data = mealDataDao.getAll()
+        keys.clear()
+        keys.addAll(data.map { it.dateType })
+        storedDates.clear()
+        for (i in data.indices step 10) {
+            storedDates.add(data[i].dateType.dropLast(2) + "-" + data[i+9].dateType.dropLast(2))
+        }
         fileSize.longValue = activity.getDatabasePath("mealData").length() / 1024
     }
 
-    fun deleteData(key: String) {
+    fun deleteData(index: Int) {
+        val key = keys.subList(index * 10, index * 10 + 10)
         mealDataDao.delete(key)
         totalCount.intValue--
-        storedDateTypes.remove(key)
+        keys.removeAll(key)
+        storedDates.removeAt(index)
     }
 
-    if (viewingDialog.value) { ManagingDialog(viewingDialog, { deleteData(it) }, storedDateTypes) }
+    if (viewingDialog.value) { ManagingDialog(viewingDialog, { deleteData(it) }, storedDates) }
 
     if (viewingConfirmDialog.value) {
         AlertDialog(
@@ -60,7 +69,7 @@ fun DatabaseManagementView(activity: Activity) {
                 Button(onClick = {
                     mealDataDao.deleteAll()
                     totalCount.intValue = 0
-                    storedDateTypes.clear()
+                    storedDates.clear()
                     viewingConfirmDialog.value = false
                     Toast.makeText(activity, "데이터가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                 }) {
@@ -86,9 +95,9 @@ fun DatabaseManagementView(activity: Activity) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("데이터 관리")
-            Text("${fileSize.longValue}kb 총 ${totalCount.intValue} 개 >")
+            Text("${fileSize.longValue}kb 총 ${totalCount.intValue}주 >")
         }
-        Divider()
+        HorizontalDivider()
         Text(text = "데이터 전체 삭제", modifier = Modifier
             .clickable { viewingConfirmDialog.value = true }
             .fillMaxWidth()
@@ -97,12 +106,10 @@ fun DatabaseManagementView(activity: Activity) {
 }
 
 @Composable
-fun ManagingDialog(viewingDialog: MutableState<Boolean>, deleteData: (String) -> Unit, storedDateTypes: List<String>) {
+fun ManagingDialog(viewingDialog: MutableState<Boolean>, deleteData: (Int) -> Unit, storedDateTypes: List<String>) {
     Dialog(onDismissRequest = { viewingDialog.value = false }, DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true)) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp)
         ) {
             LazyColumn() {
@@ -112,13 +119,8 @@ fun ManagingDialog(viewingDialog: MutableState<Boolean>, deleteData: (String) ->
                         .padding(20.dp),
                         fontSize = MaterialTheme.typography.displaySmall.fontSize)
                 }
-                items(storedDateTypes) { dateType ->
-                    val displayName: MutableList<String> = dateType.split("-").toMutableList()
-                    displayName[3] = when (displayName[3]) {
-                        "0" -> "점심"
-                        "1" -> "저녁"
-                        else -> "알 수 없음"
-                    }
+                itemsIndexed(storedDateTypes) { index, dateType  ->
+                    val displayName: List<String> = dateType.split("-")
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -126,8 +128,8 @@ fun ManagingDialog(viewingDialog: MutableState<Boolean>, deleteData: (String) ->
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("${displayName[0]}년 ${displayName[1]}월 ${displayName[2]}일 ${displayName[3]}")
-                        IconButton(onClick = { deleteData(dateType) }) {
+                        Text("${displayName[0]}년 ${displayName[1]}월 ${displayName[2]}일 ~ ${displayName[3]}년 ${displayName[4]}월 ${displayName[5]}일")
+                        IconButton(onClick = { deleteData(index) }) {
                             Icon(Icons.Outlined.Delete, contentDescription = "삭제")
                         }
                     }
