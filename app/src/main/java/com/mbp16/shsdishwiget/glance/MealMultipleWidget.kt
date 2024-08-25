@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -24,6 +25,8 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.mbp16.shsdishwiget.activity.MainActivity
+import com.mbp16.shsdishwiget.activity.settingsactivityviews.GetMealSettingDataStore
+import com.mbp16.shsdishwiget.activity.settingsactivityviews.GetMealSettingDataStore.Companion.mealDataStore
 import com.mbp16.shsdishwiget.utils.getMeals
 import java.util.*
 
@@ -41,6 +44,9 @@ class MealMultipleWidget : GlanceAppWidget() {
 
     @Composable
     private fun WidgetContent(context: Context) {
+        val mealDataStore = context.mealDataStore
+        val settingsFirmed = remember { mutableStateOf(false) }
+
         val errorOcurred = remember { mutableStateOf(false) }
 
         val prefs = currentState<Preferences>()
@@ -50,6 +56,7 @@ class MealMultipleWidget : GlanceAppWidget() {
         val todayWeekDay = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
         val mealData = remember { mutableStateListOf<ArrayList<ArrayList<String>>>()}
         val week = remember { mutableStateListOf<ArrayList<Int>>() }
+
         fun setWeek() {
             errorOcurred.value = true
             week.clear()
@@ -91,34 +98,64 @@ class MealMultipleWidget : GlanceAppWidget() {
             thread.start()
         }
         LaunchedEffect(Unit) {
-            setWeek()
-            println(week.toList())
-            updateData()
-        }
-        Row(
-            modifier = GlanceModifier.fillMaxSize().background(ColorProvider(Color(parseColor("#$backgroundColor"))))
-                .clickable(actionStartActivity<MainActivity>())
-        ) {
-            for (i in 0..<week.size) {
-                MealCard(week[i], mealData[i], todayWeekDay - 2 == i)
+            mealDataStore.data.collect { preferences ->
+                settingsFirmed.value = if ((preferences[GetMealSettingDataStore.schoolIdLink] ?: "") != "" ||
+                    (preferences[GetMealSettingDataStore.neisSchoolCode] ?: "") != "") true else false
             }
         }
-        if (errorOcurred.value) {
-            Box(
-                modifier = GlanceModifier.fillMaxSize(),
-                contentAlignment = Alignment.BottomEnd
+        LaunchedEffect(settingsFirmed.value) {
+            if (settingsFirmed.value) {
+                setWeek()
+                updateData()
+            }
+        }
+        if (settingsFirmed.value) {
+            Row(
+                modifier = GlanceModifier.fillMaxSize()
+                    .background(ColorProvider(Color(parseColor("#$backgroundColor"))))
+                    .clickable(actionStartActivity<MainActivity>())
             ) {
-                Button(
-                    text = "↺",
-                    onClick = {
-                        setWeek()
-                        updateData()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = ColorProvider(Color(parseColor("#$backgroundColor"))),
-                        contentColor = ColorProvider(Color(parseColor("#ffe4bebd")))
+                for (i in 0..<week.size) {
+                    MealCard(week[i], mealData[i], todayWeekDay - 2 == i)
+                }
+            }
+            if (errorOcurred.value) {
+                Box(
+                    modifier = GlanceModifier.fillMaxSize(),
+                    contentAlignment = Alignment.BottomEnd
+                ) {
+                    Button(
+                        text = "↺",
+                        onClick = {
+                            setWeek()
+                            updateData()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = ColorProvider(Color(parseColor("#$backgroundColor"))),
+                            contentColor = ColorProvider(Color(parseColor("#ffe4bebd")))
+                        ),
+                        modifier = GlanceModifier.padding(8.dp).width(50.dp).height(50.dp)
+                    )
+                }
+            }
+        } else {
+            Column(
+                modifier = GlanceModifier.padding(8.dp).fillMaxSize()
+                    .background(ColorProvider(Color(parseColor("#$backgroundColor"))))
+                    .clickable(actionStartActivity<MainActivity>()),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
+                Text(
+                    text = "학교 정보를 설정해주세요",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center,
+                        color = ColorProvider(Color(parseColor("#ffffffff"))),
+                        fontWeight = FontWeight.Bold
                     ),
-                    modifier = GlanceModifier.padding(8.dp).width(50.dp).height(50.dp)
+                    modifier = GlanceModifier.padding(8.dp).fillMaxWidth()
                 )
             }
         }
@@ -153,7 +190,7 @@ class MealMultipleWidget : GlanceAppWidget() {
                 Column (modifier = GlanceModifier.padding(margin.dp).fillMaxWidth().fillMaxHeight().defaultWeight()) {
                     Text(text = i[0], modifier = GlanceModifier.padding(margin.dp),
                         style = TextStyle(color = ColorProvider(Color(parseColor("#$titleColor"))), fontSize = titleFontSize.sp, fontWeight = FontWeight.Bold))
-                    for (j in i[1].split(",")) {
+                    for (j in i[1].split("\n")) {
                         Text(text = j, style = TextStyle(color = ColorProvider(Color(parseColor("#$mealColor"))), fontSize = mealFontSize.sp, fontWeight = FontWeight.Bold),
                             modifier = GlanceModifier.padding(horizontal = margin.dp, vertical = (margin/4.0).dp))
                     }

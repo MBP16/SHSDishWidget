@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -24,14 +25,14 @@ import androidx.datastore.preferences.core.edit
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.mbp16.shsdishwiget.R
 import com.mbp16.shsdishwiget.activity.mainactivityviews.UpdateView
-import com.mbp16.shsdishwiget.activity.settingsactivityviews.MainActivitySettingDataStore.Companion.dataStore
+import com.mbp16.shsdishwiget.activity.settingsactivityviews.MainActivitySettingDataStore.Companion.mainSettingsDatastore
 import com.mbp16.shsdishwiget.utils.Release
 import com.mbp16.shsdishwiget.utils.getUpdate
 import kotlinx.coroutines.launch
 
 @Composable
 fun AppInfoView(activity: Activity) {
-    val dataStore = (LocalContext.current).dataStore
+    val dataStore = (LocalContext.current).mainSettingsDatastore
     val coroutineScope = rememberCoroutineScope()
 
     val updateAuto = remember { mutableStateOf(true) }
@@ -84,10 +85,13 @@ fun AppInfoView(activity: Activity) {
                         null
                     )
                 }
-            }.fillMaxWidth().requiredHeight(64.dp).padding(20.dp),
+            }
+            .fillMaxWidth()
+            .requiredHeight(64.dp)
+            .padding(20.dp),
         fontSize = MaterialTheme.typography.titleMedium.fontSize
     )
-    Divider()
+    HorizontalDivider()
     Row(
         modifier = Modifier
             .clickable {
@@ -114,7 +118,7 @@ fun AppInfoView(activity: Activity) {
             }
         })
     }
-    Divider()
+    HorizontalDivider()
     Row(
         modifier = Modifier
             .clickable { checkUpdate() }
@@ -156,6 +160,19 @@ fun AppInfoView(activity: Activity) {
                         Intent(
                             Intent.ACTION_VIEW,
                             Uri.parse("https://discord.com/users/783147071808471090")
+                        )
+                    )
+                })
+        Image(painter = painterResource(id = R.drawable.email), contentDescription = "EMAIL",
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+            modifier = Modifier
+                .size(64.dp)
+                .padding(start = 16.dp)
+                .clickable {
+                    activity.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("mailto:phw1508@daum.net")
                         )
                     )
                 })

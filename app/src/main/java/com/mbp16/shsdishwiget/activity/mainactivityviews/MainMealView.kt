@@ -73,6 +73,20 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
 
     val veticalCoordinates = remember { mutableStateListOf(0, 0, 0, 0, 0) }
 
+    fun gotoToday() {
+        if (orientation == 1) {
+            coroutineScope.launch {
+                val animationSpec = tween<Float>(1000, easing=FastOutSlowInEasing)
+                when (todayWeekDay) {
+                    2 -> verticalScrollState.animateScrollTo(veticalCoordinates[0], animationSpec)
+                    3 -> verticalScrollState.animateScrollTo(veticalCoordinates[1], animationSpec)
+                    4 -> verticalScrollState.animateScrollTo(veticalCoordinates[2], animationSpec)
+                    5 -> verticalScrollState.animateScrollTo(veticalCoordinates[3], animationSpec)
+                    6 -> verticalScrollState.animateScrollTo(veticalCoordinates[4], animationSpec)
+                }
+            }
+        }
+    }
     fun updateData() {
         fun exceptionHandler() {
             object : Thread() {
@@ -143,7 +157,7 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
         for (i in 2..6) {
             loadingArray.add(arrayListOf(arrayListOf("Loading", "Loading", "Loading"), arrayListOf("Loading", "Loading", "Loading")))
         }
-        setWeek()
+        setWeek(true)
         dataStore.data.collect { preferences ->
             margin.intValue = preferences[intPreferencesKey("margin")] ?: 8
             fontSizeArray[0] = preferences[intPreferencesKey("dateFontSize")] ?: 32
@@ -158,6 +172,9 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
             colorArray[5] = preferences[stringPreferencesKey("calorieColor")] ?: "ff8dcae7"
             colorArray[6] = preferences[stringPreferencesKey("todayColor")] ?: "cc2df07b"
         }
+    }
+    LaunchedEffect(Unit) {
+        gotoToday()
     }
     LaunchedEffect(pageState.settledPage) {
         if (pageState.settledPage == 0) {
@@ -292,18 +309,7 @@ fun MealView(activity: Activity, dataStore: DataStore<Preferences>) {
                     onClick = {
                         viewingDateDelta.intValue = 0
                         setWeek(true)
-                        if (orientation == 1) {
-                            coroutineScope.launch {
-                                val animationSpec = tween<Float>(1000, easing=FastOutSlowInEasing)
-                                when (todayWeekDay) {
-                                    2 -> verticalScrollState.animateScrollTo(veticalCoordinates[0], animationSpec)
-                                    3 -> verticalScrollState.animateScrollTo(veticalCoordinates[1], animationSpec)
-                                    4 -> verticalScrollState.animateScrollTo(veticalCoordinates[2], animationSpec)
-                                    5 -> verticalScrollState.animateScrollTo(veticalCoordinates[3], animationSpec)
-                                    6 -> verticalScrollState.animateScrollTo(veticalCoordinates[4], animationSpec)
-                                }
-                            }
-                        }
+                        gotoToday()
                     }
                 ) {
                     Text(
@@ -417,7 +423,7 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
     fun content(meal: ArrayList<String>) {
         Text(text = meal[0], fontSize = fontSizeArray[1].sp, fontWeight = FontWeight.Bold,
             color = Color(parseColor("#${colorArray[3]}")), modifier = Modifier.padding(margin.dp))
-        Text(text = meal[1].replace(",", "\n").replace(" ", ""), fontSize = fontSizeArray[2].sp,
+        Text(text = meal[1], fontSize = fontSizeArray[2].sp,
             color = Color(parseColor("#${colorArray[4]}")), modifier = Modifier.padding(margin.dp), fontWeight = FontWeight.Bold)
         Text(text = meal[2], fontSize = fontSizeArray[3].sp,
             color = Color(parseColor("#${colorArray[5]}")),
@@ -425,9 +431,7 @@ fun MealCard(clipboardManager: ClipboardManager, margin: Int, fontSizeArray: Sna
     }
     fun copyToClipboard(input: String) {
         clipboardManager.setPrimaryClip(
-            ClipData.newPlainText(
-                "meal", input.replace(",", "\n").replace(" ", "")
-            )
+            ClipData.newPlainText("meal", input)
         )
         if (Build.VERSION.SDK_INT <= 32) {
             Toast

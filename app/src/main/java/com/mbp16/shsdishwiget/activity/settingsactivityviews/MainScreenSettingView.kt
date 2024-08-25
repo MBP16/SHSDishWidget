@@ -18,12 +18,12 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.mbp16.shsdishwiget.activity.ColorChangingRow
 import com.mbp16.shsdishwiget.activity.TextStyleChange
-import com.mbp16.shsdishwiget.activity.settingsactivityviews.MainActivitySettingDataStore.Companion.dataStore
+import com.mbp16.shsdishwiget.activity.settingsactivityviews.MainActivitySettingDataStore.Companion.mainSettingsDatastore
 import kotlinx.coroutines.launch
 
 class MainActivitySettingDataStore {
     companion object {
-        val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "mainActivitySettings")
+        val Context.mainSettingsDatastore: DataStore<Preferences> by preferencesDataStore(name = "mainActivitySettings")
 
         val margin = intPreferencesKey("margin")
 
@@ -46,7 +46,7 @@ class MainActivitySettingDataStore {
 
 @Composable
 fun MainScreenSettingView(activity: Activity) {
-    val dataStore = (LocalContext.current).dataStore
+    val dataStore = (LocalContext.current).mainSettingsDatastore
     val coroutineScope = rememberCoroutineScope()
 
     val margin = remember { mutableIntStateOf(8) }
@@ -156,7 +156,7 @@ fun MainScreenSettingView(activity: Activity) {
         }
         ColorChangingRow(backgroundColor)
     }
-    Divider()
+    HorizontalDivider()
     Column {
         Text(
             text="카드 설정",
@@ -165,15 +165,15 @@ fun MainScreenSettingView(activity: Activity) {
         )
         ColorChangingRow(cardColor)
     }
-    Divider()
+    HorizontalDivider()
     TextStyleChange("날짜 표기 설정", dateFontSize, dateColor)
-    Divider()
+    HorizontalDivider()
     TextStyleChange("급식 제목 표기 설정", titleFontSize, titleColor)
-    Divider()
+    HorizontalDivider()
     TextStyleChange("급식 표기 설정", mealFontSize, mealColor)
-    Divider()
+    HorizontalDivider()
     TextStyleChange("칼로리 표기 설정", calorieFontSize, calorieColor)
-    Divider()
+    HorizontalDivider()
     Column {
         Text(
             text="오늘 날짜 표기 설정",

@@ -2,13 +2,16 @@ package com.mbp16.shsdishwiget.glance
 
 import android.content.Context
 import android.graphics.Color.parseColor
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -26,6 +29,8 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.mbp16.shsdishwiget.activity.MainActivity
+import com.mbp16.shsdishwiget.activity.settingsactivityviews.GetMealSettingDataStore
+import com.mbp16.shsdishwiget.activity.settingsactivityviews.GetMealSettingDataStore.Companion.mealDataStore
 import com.mbp16.shsdishwiget.utils.getMealSignleWidget
 import java.util.*
 
@@ -43,6 +48,9 @@ class MealWidget : GlanceAppWidget() {
 
     @Composable
     private fun WidgetContent(context: Context) {
+        val mealDataStore = context.mealDataStore
+        val settingsFirmed = remember { mutableStateOf(false) }
+
         val prefs = currentState<Preferences>()
 
         val changeLunch = prefs[intPreferencesKey("changeLunch")] ?: 1800
@@ -69,11 +77,11 @@ class MealWidget : GlanceAppWidget() {
             val calendar = Calendar.getInstance()
             val currentTime = calendar.get(Calendar.HOUR_OF_DAY)*100+calendar.get(Calendar.MINUTE)
             val mealType: Int
-            if (currentTime in changeDinner..<changeLunch) { mealType = 1 }
+            if (currentTime in changeDinner..<changeLunch) { mealType = 3 }
             else if (currentTime >= changeLunch) {
-                mealType = 0
+                mealType = 2
                 calendar.add(Calendar.DAY_OF_MONTH, 1)
-            } else { mealType = 0 }
+            } else { mealType = 2 }
             today.clear()
             today.addAll(
                 arrayListOf(
@@ -95,52 +103,103 @@ class MealWidget : GlanceAppWidget() {
             thread.start()
         }
         LaunchedEffect(Unit) {
-            updateInfo()
+            mealDataStore.data.collect { preferences ->
+                settingsFirmed.value = if ((preferences[GetMealSettingDataStore.schoolIdLink] ?: "") != "" ||
+                    (preferences[GetMealSettingDataStore.neisSchoolCode] ?: "") != "") true else false
+            }
+        }
+        LaunchedEffect(settingsFirmed.value) {
+            if (settingsFirmed.value) {
+                updateInfo()
+            }
         }
 
-        Column (
-            modifier = GlanceModifier.padding(margin.dp).fillMaxSize()
-                .background(ColorProvider(Color(parseColor("#$backgroundColor"))))
-                .clickable(actionStartActivity<MainActivity>())
-        )
-        {
-            Text(
-                text = "${today[0]}년 ${today[1]}월 ${today[2]}일",
-                style= TextStyle(fontSize = dateFontSize.sp, textAlign = TextAlign.Center, color = ColorProvider(Color(parseColor("#$dateColor"))), fontWeight = FontWeight.Bold),
-                modifier = GlanceModifier.padding(margin.dp).fillMaxWidth()
+        if (settingsFirmed.value) {
+            Column(
+                modifier = GlanceModifier.padding(margin.dp).fillMaxSize()
+                    .background(ColorProvider(Color(parseColor("#$backgroundColor"))))
+                    .clickable(actionStartActivity<MainActivity>())
             )
-            Text(
-                text = todayMeal[0],
-                style = TextStyle(color = ColorProvider(Color(parseColor("#$titleColor"))), fontSize = titleFontSize.sp, fontWeight = FontWeight.Bold),
-                modifier = GlanceModifier.padding(margin.dp)
-            )
-            for (i in todayMeal[1].split(",")) {
+            {
                 Text(
-                    text = i,
-                    style = TextStyle(color = ColorProvider(Color(parseColor("#$mealColor"))), fontSize = mealFontSize.sp, fontWeight = FontWeight.Bold),
-                    modifier = GlanceModifier.padding(horizontal = margin.dp, vertical = (margin/4.0).dp)
+                    text = "${today[0]}년 ${today[1]}월 ${today[2]}일",
+                    style = TextStyle(
+                        fontSize = dateFontSize.sp,
+                        textAlign = TextAlign.Center,
+                        color = ColorProvider(Color(parseColor("#$dateColor"))),
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = GlanceModifier.padding(margin.dp).fillMaxWidth()
+                )
+                Text(
+                    text = todayMeal[0],
+                    style = TextStyle(
+                        color = ColorProvider(Color(parseColor("#$titleColor"))),
+                        fontSize = titleFontSize.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = GlanceModifier.padding(margin.dp)
+                )
+                for (i in todayMeal[1].split("\n")) {
+                    Text(
+                        text = i,
+                        style = TextStyle(
+                            color = ColorProvider(Color(parseColor("#$mealColor"))),
+                            fontSize = mealFontSize.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = GlanceModifier.padding(
+                            horizontal = margin.dp,
+                            vertical = (margin / 4.0).dp
+                        )
+                    )
+                }
+                Text(
+                    text = todayMeal[2],
+                    style = TextStyle(
+                        color = ColorProvider(Color(parseColor("#$calorieColor"))),
+                        fontSize = calorieFontSize.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = GlanceModifier.padding(margin.dp)
                 )
             }
-            Text(text = todayMeal[2],
-                style = TextStyle(color = ColorProvider(Color(parseColor("#$calorieColor"))), fontSize = calorieFontSize.sp, fontWeight = FontWeight.Bold),
-                 modifier = GlanceModifier.padding(margin.dp)
+            Box(
+                modifier = GlanceModifier.fillMaxSize().padding(margin.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Button(
+                    text = "↺",
+                    onClick = {
+                        updateInfo()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = ColorProvider(Color(parseColor("#$backgroundColor"))),
+                        contentColor = ColorProvider(Color(parseColor("#ffe4bebd")))
+                    ),
+                    modifier = GlanceModifier.padding(8.dp).width(50.dp).height(50.dp)
+                )
+            }
+        } else {
+            Column(
+                modifier = GlanceModifier.padding(margin.dp).fillMaxSize()
+                    .background(ColorProvider(Color(parseColor("#$backgroundColor"))))
+                    .clickable(actionStartActivity<MainActivity>()),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalAlignment = Alignment.CenterHorizontally
             )
-        }
-        Box(
-            modifier = GlanceModifier.fillMaxSize().padding(margin.dp),
-            contentAlignment = Alignment.BottomEnd
-        ) {
-            Button(
-                text = "↺",
-                onClick = {
-                    updateInfo()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = ColorProvider(Color(parseColor("#$backgroundColor"))),
-                    contentColor = ColorProvider(Color(parseColor("#ffe4bebd")))
-                ),
-                modifier = GlanceModifier.padding(8.dp).width(50.dp).height(50.dp)
-            )
+            {
+                Text(
+                    text = "학교 정보를 설정해주세요",
+                    style = TextStyle(
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center,
+                        color = ColorProvider(Color(parseColor("#$dateColor"))),
+                        fontWeight = FontWeight.Bold
+                    ),
+                    modifier = GlanceModifier.padding(margin.dp).fillMaxWidth()
+                )
+            }
         }
     }
 }

@@ -12,9 +12,6 @@ data class MealData(
 
 @Dao
 interface MealDataDao {
-    @Query("SELECT * FROM MealData WHERE dateType IN (:dates)")
-    fun getByDateTypes(dates: List<String>): List<MealData>
-
     @Query("SELECT * FROM MealData")
     fun getAll(): List<MealData>
 
@@ -24,8 +21,8 @@ interface MealDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg mealData: MealData)
 
-    @Query("DELETE FROM MealData WHERE dateType = :dateType")
-    fun delete(dateType: String)
+    @Query("DELETE FROM MealData WHERE dateType IN (:dateType)")
+    fun delete(dateType: List<String>)
 
     @Query("DELETE FROM MealData")
     fun deleteAll()

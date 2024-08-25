@@ -261,13 +261,13 @@ fun MealWidgetConfigureScreen(activity: Activity) {
             }
             ColorChangingRow(backgroundColor)
         }
-        Divider()
+        HorizontalDivider()
         TextStyleChange("날짜 표기 설정", dateFontSize, dateColor)
-        Divider()
+        HorizontalDivider()
         TextStyleChange("급식 제목 표기 설정", titleFontSize, titleColor)
-        Divider()
+        HorizontalDivider()
         TextStyleChange("급식 표기 설정", mealFontSize, mealColor)
-        Divider()
+        HorizontalDivider()
         TextStyleChange("칼로리 표기 설정", calorieFontSize, calorieColor)
         Column(modifier = Modifier.fillMaxWidth().requiredHeight(72.dp)) {}
     }
