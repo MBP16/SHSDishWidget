@@ -148,7 +148,7 @@ fun MealWidgetConfigureScreen(activity: Activity) {
         val hour = time / 100
         val min = String.format("%02d", time % 100)
         if (hour == 0) {
-            return "오전 12:${time % 100}"
+            return "오전 12:$min"
         } else if (hour < 12) {
             return "오전 $hour:$min"
         } else if (hour == 12) {
