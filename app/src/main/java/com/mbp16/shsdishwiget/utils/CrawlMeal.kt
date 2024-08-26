@@ -29,7 +29,7 @@ fun type1GetMeal(mealPagelink: String, mealIdLink: String, year: Number, month: 
         }
         val meals = dayMeal.select("a")
         if (day[1] == 2 || day[1] == 3) {
-            if (meals.size >= (day[1]-1)) { mealIds.add(meals[day[1]].attr("onclick").split("'")[1]) }
+            if (meals.size >= (day[1]-1)) { mealIds.add(meals[day[1]-2].attr("onclick").split("'")[1]) }
             else { mealIds.add("No Data") }
         } else {
             when (meals.size) {
@@ -39,6 +39,7 @@ fun type1GetMeal(mealPagelink: String, mealIdLink: String, year: Number, month: 
             }
         }
     }
+    println(mealIds)
     fun type1GetMealData(link: String, id: Number): ArrayList<String> {
         response = Jsoup.connect(link)
             .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3")

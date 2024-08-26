@@ -562,9 +562,9 @@ fun CheckingMealIDLink(schoolMealLink: MutableState<String>, schoolIdLink: Mutab
     val idLink = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        val rootLink = schoolInfo.value[4]
+        var rootLink = schoolInfo.value[4]
         if (rootLink.endsWith("/")) {
-            schoolMealLink.value = rootLink.dropLast(1)
+            rootLink = rootLink.dropLast(1)
         }
         if (schoolMealLink.value.contains("subMenu.do")) {
             schoolGetType.intValue = 1
